@@ -144,6 +144,7 @@ flowchart TD
    - [Chính sách An ninh Mạng & Quản lý Khóa Bí mật (Cybersecurity & Secrets)](05_OPERATIONS_AND_MAINTENANCE/CYBERSECURITY_AND_SECRETS_MANAGEMENT.md)
    - [Cẩm nang Triển khai Hạ tầng Máy chủ Docker Compose](05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md)
    - [Bộ công cụ Giả lập Test Harness (CAN Sim, SECC Sim, OCPP Sim)](05_OPERATIONS_AND_MAINTENANCE/TEST_SIMULATORS_GUIDE.md)
+   - [Kế hoạch Kiểm thử Tuân thủ Chuẩn OCTT (Open Charge Alliance)](05_OPERATIONS_AND_MAINTENANCE/OCPP_OCTT_COMPLIANCE_TEST_PLAN.md)
    - [Báo cáo Đánh giá Sẵn sàng Thương mại hóa Toàn hệ thống](05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md)
 9. **Quy chế Đồng bộ Tài liệu Bắt buộc:** [DOCS_SYNC_POLICY.md](DOCS_SYNC_POLICY.md)
 

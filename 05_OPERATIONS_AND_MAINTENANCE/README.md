@@ -23,3 +23,4 @@ Phân hệ Vận hành & Bảo trì cung cấp bộ quy chuẩn thao tác cho đ
 4. [CYBERSECURITY_AND_SECRETS_MANAGEMENT.md](CYBERSECURITY_AND_SECRETS_MANAGEMENT.md): Chính sách an ninh mạng công nghiệp, bảo mật mTLS / WSS, quản lý khóa bí mật (.env, JWT, Webhook HMAC) và quy trình ứng phó sự cố tấn công mạng.
 5. [TEST_SIMULATORS_GUIDE.md](TEST_SIMULATORS_GUIDE.md): Hướng dẫn sử dụng bộ công cụ giả lập kiểm thử Headless Test Harness (CAN Simulator, SECC Simulator, OCPP Mock Server).
 6. [PRODUCTION_READINESS_AUDIT.md](PRODUCTION_READINESS_AUDIT.md): Báo cáo đánh giá chi tiết mức độ sẵn sàng thương mại hóa toàn bộ hệ sinh thái THACO EVSE.
+7. [OCPP_OCTT_COMPLIANCE_TEST_PLAN.md](OCPP_OCTT_COMPLIANCE_TEST_PLAN.md): **Kế hoạch kiểm thử tuân thủ giao thức OCPP bằng công cụ OCTT (Open Charge Alliance & Open OCTT)**: 3 mô hình đo kiểm (DUT/SUT/Sniffer), ma trận 16 Test Cases chuẩn OCA, quy trình 5 giai đoạn thẩm định cấu trúc gói tin và hướng dẫn chạy kiểm thử tự động.
