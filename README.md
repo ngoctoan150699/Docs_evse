@@ -125,6 +125,7 @@ flowchart TD
    - [Đặc tả giao thức OCPP 1.6J](02_CSMS_CLOUD_PLATFORM/OCPP_1_6J_SPECIFICATION.md)
    - [Thiết kế CSDL & Vận hành Backup/Retention](02_CSMS_CLOUD_PLATFORM/DATABASE_AND_OPERATIONS.md)
    - [Tích hợp Cổng thanh toán SePay VietQR](02_CSMS_CLOUD_PLATFORM/SEPAY_PAYMENT_INTEGRATION.md)
+   - [Đặc tả Toàn bộ RESTful API Máy chủ CSMS](02_CSMS_CLOUD_PLATFORM/CSMS_REST_API_SPECIFICATION.md)
 6. **Phân hệ Màn hình Cảm ứng Trụ sạc (Android HMI):** [03_HMI_TOUCH_PANEL/README.md](03_HMI_TOUCH_PANEL/README.md)
    - [Máy trạng thái & Giao diện 9 màn hình](03_HMI_TOUCH_PANEL/HMI_STATE_MACHINE_AND_UI.md)
    - [Giao thức truyền thông Modbus RTU Serial](03_HMI_TOUCH_PANEL/HMI_MODBUS_COMMUNICATION.md)

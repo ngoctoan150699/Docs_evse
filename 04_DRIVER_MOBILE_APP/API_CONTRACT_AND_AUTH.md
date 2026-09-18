@@ -4,6 +4,8 @@
 Tài liệu này định nghĩa chi tiết các API REST giữa Ứng dụng di động THACO_Charge và Máy chủ CSMS Go Backend.
 
 ---
+> **Tham chiếu đầy đủ:** Xem chi tiết toàn bộ cấu trúc request/response của máy chủ CSMS tại [CSMS_REST_API_SPECIFICATION.md](../02_CSMS_CLOUD_PLATFORM/CSMS_REST_API_SPECIFICATION.md).
+
 
 ## 1. LUỒNG XÁC THỰC BẢO MẬT JWT (AUTHENTICATION FLOW)
 

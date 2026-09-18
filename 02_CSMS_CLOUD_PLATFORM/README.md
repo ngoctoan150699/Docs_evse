@@ -60,3 +60,5 @@ Giao diện quản trị trung tâm hỗ trợ song ngữ (**Tiếng Việt / En
 1. [OCPP_1_6J_SPECIFICATION.md](OCPP_1_6J_SPECIFICATION.md): Đặc tả giao thức OCPP 1.6J JSON-RPC, Core Profile và Smart Charging.
 2. [DATABASE_AND_OPERATIONS.md](DATABASE_AND_OPERATIONS.md): Thiết kế CSDL PostgreSQL, TimescaleDB, sao lưu, phục hồi và nén dữ liệu.
 3. [SEPAY_PAYMENT_INTEGRATION.md](SEPAY_PAYMENT_INTEGRATION.md): Cơ chế Webhook IPN nhận biến động số dư VietQR và cộng tiền tự động.
+
+4. [CSMS_REST_API_SPECIFICATION.md](CSMS_REST_API_SPECIFICATION.md): Đặc tả chi tiết toàn bộ danh mục RESTful API (Auth, Mobile Driver, CSMS Admin, OCPP Commands, SePay Webhook).
