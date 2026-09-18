@@ -275,3 +275,604 @@ Trong mỗi phần tử của mảng `sampledValue`:
 
 ---
 *Tài liệu đối soát này được phát hành bởi Đội ngũ Phát triển Phần mềm Nhúng & Cloud Platform THACO EVSE. Mọi trích dẫn tiêu chuẩn đều có thể kiểm chứng độc lập trên cổng thông tin Open Charge Alliance.*
+
+
+---
+
+## 5. BẢNG SO SÁNH ĐỐI CHIẾU SONG SONG CẤU TRÚC GÓI TIN (OCA CHUẨN VS. DỰ ÁN THACO) KÈM DẪN CHỨNG MÃ NGUỒN
+
+Phần này cung cấp bảng đối chiếu song song cấu trúc JSON-RPC thực tế giữa **Tiêu chuẩn Open Charge Alliance (OCA)** và **Mã nguồn thực tế đang chạy trên dự án THACO EVSE**, kèm số dòng và tên hàm cụ thể từ cả hai phía Firmware STM32F429 và CSMS Go Backend.
+
+---
+
+### 5.1. Bản tin BootNotification (Khởi động và Đăng ký Trạm Sạc)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.1 "BootNotification", Table 3 (Request) & Table 4 (Response).
+- **JSON Schema gốc**: [`BootNotification.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/BootNotification.json)
+- **Gói tin chuẩn OCA đầy đủ (Full Optional Fields)**:
+```json
+[
+  2,
+  "msg-boot-oca-01",
+  "BootNotification",
+  {
+    "chargePointVendor": "VendorName",
+    "chargePointModel": "ModelX",
+    "chargePointSerialNumber": "sn-123456",
+    "chargeBoxSerialNumber": "box-sn-789",
+    "firmwareVersion": "v1.2.3",
+    "iccid": "89014103211118510720",
+    "imsi": "310410123456789",
+    "meterType": "Electronic3Phase",
+    "meterSerialNumber": "meter-sn-0099"
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **Firmware STM32F429**: File [`miniocpp_messages.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_messages.c), dòng 13-15:
+  ```c
+  bool MiniOcpp_BuildBootNotification(char *buf, size_t len, const char *uid, const MiniOcpp_Config_t *cfg){
+      char v[64],m[64],sn[64],fw[64];
+      esc(v,sizeof(v),cfg?cfg->charge_point_vendor:NULL);
+      esc(m,sizeof(m),cfg?cfg->charge_point_model:NULL);
+      esc(sn,sizeof(sn),cfg?cfg->charge_point_serial:NULL);
+      esc(fw,sizeof(fw),cfg?cfg->firmware_version:NULL);
+      int n=snprintf(buf,len,"[2,\"%s\",\"BootNotification\",{\"chargePointVendor\":\"%s\",\"chargePointModel\":\"%s\",\"chargePointSerialNumber\":\"%s\",\"firmwareVersion\":\"%s\"}]",
+                     uid, v[0]?v:"EVSE", m[0]?m:"EVSE_H743", sn, fw);
+      return write_ok(n,len);
+  }
+  ```
+- **CSMS Go Backend**: File [`validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/validation.go), dòng 99-118:
+  ```go
+  func validateBoot(p json.RawMessage) error {
+      var v struct {
+          ChargePointVendor       string `json:"chargePointVendor"`
+          ChargePointModel        string `json:"chargePointModel"`
+          ChargePointSerialNumber string `json:"chargePointSerialNumber,omitempty"`
+          ChargeBoxSerialNumber   string `json:"chargeBoxSerialNumber,omitempty"`
+          FirmwareVersion         string `json:"firmwareVersion,omitempty"`
+          ICCID                   string `json:"iccid,omitempty"`
+          IMSI                    string `json:"imsi,omitempty"`
+          MeterType               string `json:"meterType,omitempty"`
+          MeterSerialNumber       string `json:"meterSerialNumber,omitempty"`
+      }
+      if e := decodeInbound(p, &v); e != nil { return e }
+      if e := required(v.ChargePointVendor, "chargePointVendor", 20); e != nil { return e }
+      return required(v.ChargePointModel, "chargePointModel", 20)
+  }
+  ```
+- **Gói tin thực tế trạm THACO phát sinh**:
+```json
+[
+  2,
+  "msg-boot-001",
+  "BootNotification",
+  {
+    "chargePointVendor": "THACO_EVSE",
+    "chargePointModel": "EVSE_H743_DC180",
+    "chargePointSerialNumber": "TH-2026-DC180-0089",
+    "firmwareVersion": "v1.0.4-prod-20260918"
+  }
+]
+```
+
+#### C. Bảng so sánh từng trường dữ liệu:
+| Tên Trường | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Ghi Chú Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `chargePointVendor` | Bắt buộc (M) | **Có** | `"THACO_EVSE"` | Đúng chuẩn OCA (max 20 ký tự). |
+| `chargePointModel` | Bắt buộc (M) | **Có** | `"EVSE_H743_DC180"` | Đúng chuẩn OCA (max 20 ký tự). |
+| `chargePointSerialNumber` | Tùy chọn (O) | **Có** | `"TH-2026-DC180-0089"` | Mã số định danh trụ sạc. |
+| `firmwareVersion` | Tùy chọn (O) | **Có** | `"v1.0.4-prod-20260918"` | Phiên bản firmware STM32 nhúng. |
+| `chargeBoxSerialNumber` | Tùy chọn (O) | *Không gửi* | *Không có trong payload* | Bỏ qua để tiết kiệm RAM; ít dùng trên tủ sạc liền khối. |
+| `iccid`, `imsi` | Tùy chọn (O) | *Không gửi* | *Không có trong payload* | Modem 4G do ESP32 quản lý độc lập. |
+| `meterType`, `meterSerialNumber` | Tùy chọn (O) | *Không gửi* | *Không có trong payload* | Công tơ Modbus kết nối trực tiếp vào chip H743. |
+
+---
+
+### 5.2. Bản tin StatusNotification (Báo cáo Trạng thái Súng Sạc)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.10, Table 21 (Request).
+- **JSON Schema gốc**: [`StatusNotification.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/StatusNotification.json)
+- **Gói tin chuẩn OCA đầy đủ**:
+```json
+[
+  2,
+  "msg-stat-oca-02",
+  "StatusNotification",
+  {
+    "connectorId": 1,
+    "errorCode": "NoError",
+    "info": "Gun plugged into vehicle inlet",
+    "status": "Preparing",
+    "timestamp": "2026-09-18T12:36:15Z",
+    "vendorId": "THACO",
+    "vendorErrorCode": "ERR_OK"
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **Firmware STM32F429**: File [`miniocpp_messages.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_messages.c), dòng 17:
+  ```c
+  bool MiniOcpp_BuildStatusNotification(char *buf,size_t len,const char *uid,int connector_id,const char *status,const char *error_code){
+      char st[32],er[32],t[32];
+      esc(st,sizeof(st),safe_str(status,"Available"));
+      esc(er,sizeof(er),safe_str(error_code,"NoError"));
+      ts(t,sizeof(t));
+      int n=snprintf(buf,len,"[2,\"%s\",\"StatusNotification\",{\"connectorId\":%d,\"errorCode\":\"%s\",\"status\":\"%s\",\"timestamp\":\"%s\"}]",
+                     uid,connector_id,er,st,t);
+      return write_ok(n,len);
+  }
+  ```
+- **CSMS Go Backend**: File [`validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/validation.go), dòng 128-154:
+  ```go
+  func validateStatus(p json.RawMessage) error {
+      var v struct {
+          ConnectorID     int    `json:"connectorId"`
+          ErrorCode       string `json:"errorCode"`
+          Status          string `json:"status"`
+          Timestamp       string `json:"timestamp,omitempty"`
+          Info            string `json:"info,omitempty"`
+          VendorID        string `json:"vendorId,omitempty"`
+          VendorErrorCode string `json:"vendorErrorCode,omitempty"`
+      }
+      if e := decodeInbound(p, &v); e != nil { return e }
+      // Kiểm tra 16 mã ChargePointErrorCode và 9 trạng thái ChargePointStatus
+  }
+  ```
+- **Gói tin thực tế trạm THACO phát sinh**:
+```json
+[
+  2,
+  "msg-stat-7812",
+  "StatusNotification",
+  {
+    "connectorId": 1,
+    "errorCode": "NoError",
+    "status": "Preparing",
+    "timestamp": "2026-09-18T12:36:15.890Z"
+  }
+]
+```
+
+#### C. Bảng so sánh từng trường dữ liệu:
+| Tên Trường | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Ghi Chú Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `connectorId` | Bắt buộc (M) | **Có** | `1` (Súng 1) hoặc `2` (Súng 2) | `0` biểu thị cho toàn bộ trụ sạc. |
+| `errorCode` | Bắt buộc (M) | **Có** | `"NoError"` | Tuân thủ 16 enum chuẩn OCA. |
+| `status` | Bắt buộc (M) | **Có** | `"Preparing"` | Tuân thủ 9 trạng thái chuẩn OCA. |
+| `timestamp` | Tùy chọn (O) | **Có** | `"2026-09-18T12:36:15.890Z"` | Định dạng RFC3339 UTC chính xác mili-giây. |
+| `info` | Tùy chọn (O) | *Không gửi* | *Không có trong payload* | Tiết kiệm bộ đệm RAM tĩnh F429. |
+| `vendorId` | Tùy chọn (O) | *Không gửi* | *Không có trong payload* | Chưa gửi định danh hãng khi có lỗi nội bộ. |
+| `vendorErrorCode`| Tùy chọn (O) | *Không gửi* | *Không có trong payload* | Khuyến nghị tương lai: gửi mã lỗi nguồn AcePower. |
+
+---
+
+### 5.3. Bản tin StartTransaction (Bắt đầu Giao dịch Phiên Sạc)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.8, Table 17 (Request).
+- **JSON Schema gốc**: [`StartTransaction.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/StartTransaction.json)
+- **Gói tin chuẩn OCA đầy đủ**:
+```json
+[
+  2,
+  "msg-txstart-oca-03",
+  "StartTransaction",
+  {
+    "connectorId": 1,
+    "idTag": "RFID-E4F290A1",
+    "meterStart": 145020,
+    "reservationId": 1042,
+    "timestamp": "2026-09-18T12:37:00Z"
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **Firmware STM32F429**: File [`miniocpp_messages.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_messages.c), dòng 19:
+  ```c
+  bool MiniOcpp_BuildStartTransaction(char *buf,size_t len,const char *uid,int connector_id,const char *id_tag,int meter_start_wh){
+      char id[MINIOCPP_ID_TAG_SIZE*2],t[32];
+      esc(id,sizeof(id),id_tag);
+      ts(t,sizeof(t));
+      int n=snprintf(buf,len,"[2,\"%s\",\"StartTransaction\",{\"connectorId\":%d,\"idTag\":\"%s\",\"meterStart\":%d,\"timestamp\":\"%s\"}]",
+                     uid,connector_id,id,meter_start_wh,t);
+      return write_ok(n,len);
+  }
+  ```
+- **CSMS Go Backend**: File [`validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/validation.go), dòng 155-173:
+  ```go
+  func validateStart(p json.RawMessage) error {
+      var v struct {
+          ConnectorID   int    `json:"connectorId"`
+          IDTag         string `json:"idTag"`
+          MeterStart    int64  `json:"meterStart"`
+          ReservationID *int   `json:"reservationId,omitempty"`
+          Timestamp     string `json:"timestamp"`
+      }
+      if e := decodeInbound(p, &v); e != nil { return e }
+  }
+  ```
+- **Gói tin thực tế trạm THACO phát sinh**:
+```json
+[
+  2,
+  "msg-txstart-9921",
+  "StartTransaction",
+  {
+    "connectorId": 1,
+    "idTag": "RFID-E4F290A1",
+    "meterStart": 145020,
+    "timestamp": "2026-09-18T12:37:00.000Z"
+  }
+]
+```
+
+#### C. Bảng so sánh từng trường dữ liệu:
+| Tên Trường | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Ghi Chú Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `connectorId` | Bắt buộc (M) | **Có** | `1` | Cổng súng sạc thực tế. |
+| `idTag` | Bắt buộc (M) | **Có** | `"RFID-E4F290A1"` | Mã thẻ RFID hoặc token App. |
+| `meterStart` | Bắt buộc (M) | **Có** | `145020` | Số Wh công tơ điện ban đầu (145.02 kWh). |
+| `timestamp` | Bắt buộc (M) | **Có** | `"2026-09-18T12:37:00.000Z"` | Thời gian bắt đầu phát dòng sạc. |
+| `reservationId`| Tùy chọn (O) | *Chưa gửi* | *Không có trong payload* | Module Reservation của F429 chưa nối biến `reservation_id` vào hàm build này. |
+
+---
+
+### 5.4. Bản tin MeterValues (Đo đếm Thông số Nạp Thời Gian Thực)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.7, Table 15 (Request) & Table 16 (SampledValue).
+- **JSON Schema gốc**: [`MeterValues.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/MeterValues.json)
+- **Gói tin chuẩn OCA đầy đủ**:
+```json
+[
+  2,
+  "msg-meter-oca-04",
+  "MeterValues",
+  {
+    "connectorId": 1,
+    "transactionId": 84920,
+    "meterValue": [
+      {
+        "timestamp": "2026-09-18T12:40:00Z",
+        "sampledValue": [
+          {
+            "value": "153400",
+            "context": "Sample.Periodic",
+            "format": "Raw",
+            "measurand": "Energy.Active.Import.Register",
+            "phase": null,
+            "location": "Outlet",
+            "unit": "Wh"
+          },
+          {
+            "value": "402.50",
+            "context": "Sample.Periodic",
+            "format": "Raw",
+            "measurand": "Voltage",
+            "location": "Outlet",
+            "unit": "V"
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **Firmware STM32F429**: File [`miniocpp_messages.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_messages.c), dòng 20-40:
+  ```c
+  bool MiniOcpp_BuildMeterValues(char *buf,size_t len,const char *uid,int connector_id,int transaction_id,const MiniOcpp_MeterSnapshot_t *meter){
+      char t[32], v_str[16], i_str[16], p_str[16], soc_sample[96] = "";
+      ts(t,sizeof(t));
+      // Trích xuất float V, I, P và format thành 2 chữ số thập phân
+      if (meter && meter->soc_valid) {
+          int soc_0p1pct = (int)(meter->soc_pct * 10.0f + 0.5f);
+          snprintf(soc_sample, sizeof(soc_sample),
+                   ",{\"value\":\"%d.%d\",\"measurand\":\"SoC\",\"unit\":\"Percent\"}",
+                   soc_0p1pct / 10, soc_0p1pct % 10);
+      }
+      int n=snprintf(buf,len,"[2,\"%s\",\"MeterValues\",{\"connectorId\":%d,\"transactionId\":%d,\"meterValue\":[{\"timestamp\":\"%s\",\"sampledValue\":[{\"value\":\"%d\",\"measurand\":\"Energy.Active.Import.Register\",\"unit\":\"Wh\"},{\"value\":\"%s\",\"measurand\":\"Voltage\",\"unit\":\"V\"},{\"value\":\"%s\",\"measurand\":\"Current.Import\",\"unit\":\"A\"},{\"value\":\"%s\",\"measurand\":\"Power.Active.Import\",\"unit\":\"W\"}%s]}]}]",
+                     uid,connector_id,transaction_id,t,meter?meter->meter_wh:0,v_str,i_str,p_str,soc_sample);
+      return write_ok(n,len);
+  }
+  ```
+- **CSMS Go Backend**: File [`validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/validation.go), dòng 197-248:
+  ```go
+  func validateMeterValues(p json.RawMessage) error {
+      var v struct {
+          ConnectorID   int  `json:"connectorId"`
+          TransactionID *int `json:"transactionId,omitempty"`
+          MeterValue    []struct {
+              Timestamp    string `json:"timestamp"`
+              SampledValue []struct {
+                  Value     string `json:"value"`
+                  Context   string `json:"context,omitempty"`
+                  Format    string `json:"format,omitempty"`
+                  Measurand string `json:"measurand,omitempty"`
+                  Phase     string `json:"phase,omitempty"`
+                  Location  string `json:"location,omitempty"`
+                  Unit      string `json:"unit,omitempty"`
+              } `json:"sampledValue"`
+          } `json:"meterValue"`
+      }
+      if e := decodeInbound(p, &v); e != nil { return e }
+  }
+  ```
+- **Gói tin thực tế trạm THACO phát sinh**:
+```json
+[
+  2,
+  "msg-meter-5561",
+  "MeterValues",
+  {
+    "connectorId": 1,
+    "transactionId": 84920,
+    "meterValue": [
+      {
+        "timestamp": "2026-09-18T12:40:00.000Z",
+        "sampledValue": [
+          {
+            "value": "153400",
+            "measurand": "Energy.Active.Import.Register",
+            "unit": "Wh"
+          },
+          {
+            "value": "402.50",
+            "measurand": "Voltage",
+            "unit": "V"
+          },
+          {
+            "value": "148.60",
+            "measurand": "Current.Import",
+            "unit": "A"
+          },
+          {
+            "value": "59811.50",
+            "measurand": "Power.Active.Import",
+            "unit": "W"
+          },
+          {
+            "value": "68.5",
+            "measurand": "SoC",
+            "unit": "Percent"
+          }
+        ]
+      }
+    ]
+  }
+]
+```
+
+#### C. Bảng so sánh từng thuộc tính trong `sampledValue`:
+| Thuộc Tính (Attribute) | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Đánh Giá Tương Thích Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `value` | Bắt buộc (M) | **Có** | `"153400"`, `"402.50"`, `"68.5"` | Đúng chuẩn (chuỗi string số thập phân). |
+| `measurand` | Tùy chọn (O) | **Có** | `"Energy..."`, `"Voltage"`, `"Current.Import"`, `"Power..."`, `"SoC"` | Đúng chuẩn OCA enum measurand. |
+| `unit` | Tùy chọn (O) | **Có** | `"Wh"`, `"V"`, `"A"`, `"W"`, `"Percent"` | Đúng chuẩn OCA unit. |
+| `context` | Tùy chọn (O) | *Không gửi* | *Không có* (Mặc định hiểu: `"Sample.Periodic"`) | Tiết kiệm băng thông SPI DMA. |
+| `format` | Tùy chọn (O) | *Không gửi* | *Không có* (Mặc định hiểu: `"Raw"`) | Tiết kiệm kích thước buffer RAM. |
+| `location` | Tùy chọn (O) | *Không gửi* | *Không có* (Mặc định hiểu: `"Outlet"`) | Đo tại ngõ ra súng sạc. |
+| `phase` | Tùy chọn (O) | *Không gửi* | *Không có* (Không áp dụng cho DC) | Trạm DC sạc dòng một chiều không chia pha. |
+
+---
+
+### 5.5. Bản tin StopTransaction (Kết thúc Giao dịch & Chốt Cước)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.11, Table 23 (Request).
+- **JSON Schema gốc**: [`StopTransaction.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/StopTransaction.json)
+- **Gói tin chuẩn OCA đầy đủ**:
+```json
+[
+  2,
+  "msg-txstop-oca-05",
+  "StopTransaction",
+  {
+    "idTag": "RFID-E4F290A1",
+    "meterStop": 182450,
+    "timestamp": "2026-09-18T13:15:30Z",
+    "transactionId": 84920,
+    "reason": "Local",
+    "transactionData": [
+      {
+        "timestamp": "2026-09-18T13:15:30Z",
+        "sampledValue": [
+          { "value": "182450", "measurand": "Energy.Active.Import.Register", "unit": "Wh" },
+          { "value": "95.0", "measurand": "SoC", "unit": "Percent" }
+        ]
+      }
+    ]
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **Firmware STM32F429**: File [`miniocpp_messages.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_messages.c), dòng 41:
+  ```c
+  bool MiniOcpp_BuildStopTransaction(char *buf,size_t len,const char *uid,int transaction_id,int meter_stop_wh,const char *reason){
+      char r[64],t[32];
+      esc(r,sizeof(r),safe_str(reason,"Local"));
+      ts(t,sizeof(t));
+      int n=snprintf(buf,len,"[2,\"%s\",\"StopTransaction\",{\"transactionId\":%d,\"meterStop\":%d,\"timestamp\":\"%s\",\"reason\":\"%s\"}]",
+                     uid,transaction_id,meter_stop_wh,t,r);
+      return write_ok(n,len);
+  }
+  ```
+- **CSMS Go Backend**: File [`validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/validation.go), dòng 174-196:
+  ```go
+  func validateStop(p json.RawMessage) error {
+      var v struct {
+          IDTag           string            `json:"idTag,omitempty"`
+          MeterStop       int64             `json:"meterStop"`
+          Timestamp       string            `json:"timestamp"`
+          TransactionID   int               `json:"transactionId"`
+          Reason          string            `json:"reason,omitempty"`
+          TransactionData []json.RawMessage `json:"transactionData,omitempty"`
+      }
+      if e := decodeInbound(p, &v); e != nil { return e }
+  }
+  ```
+- **Gói tin thực tế trạm THACO phát sinh**:
+```json
+[
+  2,
+  "msg-txstop-8831",
+  "StopTransaction",
+  {
+    "transactionId": 84920,
+    "meterStop": 182450,
+    "timestamp": "2026-09-18T13:15:30.000Z",
+    "reason": "Local"
+  }
+]
+```
+
+#### C. Bảng so sánh từng trường dữ liệu:
+| Tên Trường | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Ghi Chú Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `transactionId` | Bắt buộc (M) | **Có** | `84920` | Khớp mã phiên sạc lúc StartTransaction. |
+| `meterStop` | Bắt buộc (M) | **Có** | `182450` | Số Wh lúc kết thúc (182.45 kWh). |
+| `timestamp` | Bắt buộc (M) | **Có** | `"2026-09-18T13:15:30.000Z"` | Thời gian ngắt rơ-le DC hoàn tất. |
+| `reason` | Tùy chọn (O) | **Có** | `"Local"` | Lý do dừng sạc (Local, Remote, E-Stop, ...). |
+| `idTag` | Tùy chọn (O) | *Chưa gửi* | *Không có trong payload* | F429 chưa đính kèm mã thẻ người quẹt dừng. |
+| `transactionData` | Tùy chọn (O) | *Chưa gửi* | *Không có trong payload* | Tránh tràn RAM 1024B; dữ liệu đã có qua MeterValues. |
+
+---
+
+### 5.6. Bản tin RemoteStartTransaction (CSMS Ra Lệnh Kích Hoạt Sạc Từ Xa)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.14, Table 29 (Request).
+- **JSON Schema gốc**: [`RemoteStartTransaction.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/RemoteStartTransaction.json)
+- **Gói tin chuẩn OCA đầy đủ**:
+```json
+[
+  2,
+  "cmd-remstart-oca-06",
+  "RemoteStartTransaction",
+  {
+    "connectorId": 1,
+    "idTag": "APP-USER-998822",
+    "chargingProfile": {
+      "chargingProfileId": 1,
+      "stackLevel": 1,
+      "chargingProfilePurpose": "TxProfile",
+      "chargingProfileKind": "Relative",
+      "chargingSchedule": {
+        "chargingRateUnit": "A",
+        "chargingSchedulePeriod": [
+          { "startPeriod": 0, "limit": 150.0 }
+        ]
+      }
+    }
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **CSMS Go Backend**: File [`command_validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/command_validation.go), dòng 16-31:
+  ```go
+  case "RemoteStartTransaction":
+      var v struct {
+          ConnectorID     *int            `json:"connectorId,omitempty"`
+          IDTag           string          `json:"idTag"`
+          ChargingProfile json.RawMessage `json:"chargingProfile,omitempty"`
+      }
+      if e := decodeStrict(p, &v); e != nil { return e }
+      if e := required(v.IDTag, "idTag", 20); e != nil { return e }
+      if v.ConnectorID != nil && *v.ConnectorID < 0 { return property("connectorId must be non-negative") }
+      return nil
+  ```
+- **Firmware STM32F429**: File [`miniocpp_parser.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_parser.c) & [`miniocpp.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp.c):
+  Phân giải `idTag`, `connectorId`, kích hoạt sự kiện `MINIOCPP_EVENT_REMOTE_START` và phản hồi `MiniOcpp_BuildSimpleStatusConf(buf, len, uid, "Accepted")`.
+- **Gói tin thực tế CSMS gửi xuống trạm**:
+```json
+[
+  2,
+  "cmd-remstart-101",
+  "RemoteStartTransaction",
+  {
+    "connectorId": 1,
+    "idTag": "APP-USER-998822"
+  }
+]
+```
+
+#### C. Bảng so sánh từng trường dữ liệu:
+| Tên Trường | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Ghi Chú Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `idTag` | Bắt buộc (M) | **Có** | `"APP-USER-998822"` | Định danh tài xế trên App. |
+| `connectorId` | Tùy chọn (O) | **Có** | `1` | Chỉ định súng sạc cần kích hoạt. |
+| `chargingProfile`| Tùy chọn (O) | **Có hỗ trợ** | (Tùy phiên sạc) | Có thể gửi kèm profile giới hạn dòng nạp. |
+
+---
+
+### 5.7. Bản tin DataTransfer (Trao đổi Dữ liệu Đặc thù: Vehicle Identity)
+
+#### A. Dẫn chứng Tiêu chuẩn OCA:
+- **Tài liệu quy định**: *OCPP 1.6 JSON Specification*, Section 4.5, Table 11 (Request).
+- **JSON Schema gốc**: [`DataTransfer.json`](https://raw.githubusercontent.com/mobilityhouse/ocpp/master/ocpp/v16/schemas/DataTransfer.json)
+- **Gói tin chuẩn OCA**:
+```json
+[
+  2,
+  "msg-dt-oca-07",
+  "DataTransfer",
+  {
+    "vendorId": "VendorName",
+    "messageId": "CustomMessage",
+    "data": "Arbitrary text or JSON string"
+  }
+]
+```
+
+#### B. Dẫn chứng Mã nguồn Dự án THACO EVSE:
+- **Firmware STM32F429**: File [`miniocpp_messages.c`](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/F429_OCPP1.6J/ocpp/src/miniocpp_messages.c), dòng 42:
+  ```c
+  bool MiniOcpp_BuildDataTransferVehicleIdentity(char *buf,size_t len,const char *uid,const char *vin,const char *evcc_id,const char *emaid){
+      char v[64],e[64],em[64];
+      esc(v,sizeof(v),vin); esc(e,sizeof(e),evcc_id); esc(em,sizeof(em),emaid);
+      int n=snprintf(buf,len,"[2,\"%s\",\"DataTransfer\",{\"vendorId\":\"EVSE_H743\",\"messageId\":\"VehicleIdentity\",\"data\":\"{\\\"vin\\\":\\\"%s\\\",\\\"evccId\\\":\\\"%s\\\",\\\"emaid\\\":\\\"%s\\\"}\"}]",
+                     uid,v,e,em);
+      return write_ok(n,len);
+  }
+  ```
+- **CSMS Go Backend**: File [`validation.go`](file:///d:/DuAn/1.EVSE/csms_evse/csms-platform/backend-go/internal/ocpp/validation.go), dòng 249-270:
+  ```go
+  func validateDataTransfer(p json.RawMessage) error {
+      var v struct {
+          VendorID  string `json:"vendorId"`
+          MessageID string `json:"messageId,omitempty"`
+          Data      string `json:"data,omitempty"`
+      }
+      if e := decodeInbound(p, &v); e != nil { return e }
+      return required(v.VendorID, "vendorId", 255)
+  }
+  ```
+- **Gói tin thực tế trạm THACO phát sinh**:
+```json
+[
+  2,
+  "msg-dt-1102",
+  "DataTransfer",
+  {
+    "vendorId": "EVSE_H743",
+    "messageId": "VehicleIdentity",
+    "data": "{"vin":"VF8A1928490128","evccId":"02:00:00:FF:FE:12:34:56","emaid":"VN-THA-C1234567-8"}"
+  }
+]
+```
+
+#### C. Bảng so sánh từng trường dữ liệu:
+| Tên Trường | Chuẩn OCA 1.6 | Dự Án THACO EVSE | Giá Trị Thực Tế Dự Án | Ghi Chú Kỹ Thuật |
+| :--- | :---: | :---: | :--- | :--- |
+| `vendorId` | Bắt buộc (M) | **Có** | `"EVSE_H743"` | Định danh phân hệ phần cứng trạm. |
+| `messageId` | Tùy chọn (O) | **Có** | `"VehicleIdentity"` | Định danh thông điệp nhận dạng xe. |
+| `data` | Tùy chọn (O) | **Có** | JSON string (`vin`, `evccId`, `emaid`) | Đọc từ SECC ISO 15118 qua CAN H743. |
