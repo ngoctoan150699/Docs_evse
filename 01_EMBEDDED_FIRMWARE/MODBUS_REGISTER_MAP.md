@@ -1,6 +1,9 @@
 # BẢNG ÁNH XẠ THANH GHI MODBUS RTU CHUẨN
 ## (MASTER MODBUS RTU REGISTER MAPPING TABLE)
 
+> **Tham chiếu đầy đủ:** Xem chi tiết cơ chế hoạt động, đóng gói khung nhị phân và sơ đồ chu trình sạc tại [INTER_MCU_COMMUNICATION_AND_REGISTERS.md](INTER_MCU_COMMUNICATION_AND_REGISTERS.md).  
+> **Kiến trúc bản đồ:** Chuẩn Offset công nghiệp 16-bit (`Map Version 0x0221`) công bố bởi STM32H743 (Slave ID `0x01`), hỗ trợ cả STM32F429 (Master 1) và Android HMI (Master 2).
+
 > **Giao thức:** Modbus RTU qua RS485 vi sai  
 > **Tốc độ:** 115,200 bps, 8 Data bits, No Parity, 1 Stop bit  
 > **Mô hình:** F429 là Master | H743 là Slave (Địa chỉ `0x01`) | HMI là Master/Monitor phụ

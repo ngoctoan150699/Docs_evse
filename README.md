@@ -92,6 +92,7 @@ flowchart TD
 
 ### 3.2. Dành cho Kỹ sư Lập trình Nhúng & Phần cứng (Embedded Engineers):
 - Đọc [01_EMBEDDED_FIRMWARE/README.md](01_EMBEDDED_FIRMWARE/README.md): Kiến trúc phân tán 3 chip ESP32-C6, STM32F429, STM32H743.
+- Đọc [01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md](01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang tương tác giữa 3 vi điều khiển và màn hình HMI**: Giao thức SPI 4 dây DMA 10MHz (Magic 0xAE53), Modbus RTU RS485 (115200 bps), bảng thanh ghi chi tiết H743 (0x0000 System, 0x0100 Telemetry, 0x0500 Business, 0x0700 HMI Mailbox, 0x0740 F4 Command, 0x0800 QR Token) và chìa khóa thực thi Magic Commit `0xA55A`.
 - Đọc [01_EMBEDDED_FIRMWARE/HARDWARE_PINOUT_AND_BUSES.md](01_EMBEDDED_FIRMWARE/HARDWARE_PINOUT_AND_BUSES.md): Sơ đồ chân nối pinout chi tiết, thông số các bus SPI DMA, RS485, FDCAN.
 - Đọc [01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md](01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md): Bảng ánh xạ thanh ghi Modbus RTU chuẩn.
 - Đọc [01_EMBEDDED_FIRMWARE/OTA_UPDATE_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/OTA_UPDATE_SPECIFICATION.md): Cơ chế nạp OTA Web/MQTT, phân đoạn sub-chunk 512B và Live Dual-Bank Flash.
@@ -123,8 +124,9 @@ flowchart TD
 2. **Kiến trúc Toàn diện Đa phân hệ:** [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md)
 3. **Sơ đồ Chu trình Nghiệp vụ Thực tế:** [SYSTEM_WORKFLOWS_AND_FLOWCHARTS.md](SYSTEM_WORKFLOWS_AND_FLOWCHARTS.md)
 4. **Phân hệ Phần cứng & Nhúng (Embedded Firmware):** [01_EMBEDDED_FIRMWARE/README.md](01_EMBEDDED_FIRMWARE/README.md)
+   - [Giao thức Truyền thông Liên MCU & Bản đồ Thanh ghi HMI/F4/H7](01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md)
    - [Sơ đồ chân & Các bus truyền thông](01_EMBEDDED_FIRMWARE/HARDWARE_PINOUT_AND_BUSES.md)
-   - [Bảng ánh xạ thanh ghi Modbus RTU](01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md)
+   - [Bảng ánh xạ thanh ghi Modbus RTU chuẩn](01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md)
    - [Đặc tả nâng cấp Firmware OTA](01_EMBEDDED_FIRMWARE/OTA_UPDATE_SPECIFICATION.md)
    - [Cẩm nang Biên dịch, Nạp Flash & Headless Test](01_EMBEDDED_FIRMWARE/BUILD_AND_FLASH_GUIDE.md)
 5. **Phân hệ Máy chủ Đám mây (CSMS Cloud Platform):** [02_CSMS_CLOUD_PLATFORM/README.md](02_CSMS_CLOUD_PLATFORM/README.md)
