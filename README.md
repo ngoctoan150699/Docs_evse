@@ -114,7 +114,7 @@ flowchart TD
 - Đọc [03_HMI_TOUCH_PANEL/HMI_STATE_MACHINE_AND_UI.md](03_HMI_TOUCH_PANEL/HMI_STATE_MACHINE_AND_UI.md): 9 màn hình trạng thái trực quan.
 - Đọc [03_HMI_TOUCH_PANEL/DRIVER_CHARGING_USER_MANUAL.md](03_HMI_TOUCH_PANEL/DRIVER_CHARGING_USER_MANUAL.md): Cẩm nang hướng dẫn thao tác sạc xe thực tế dành cho tài xế.
 - Đọc [04_DRIVER_MOBILE_APP/README.md](04_DRIVER_MOBILE_APP/README.md): Ứng dụng tài xế THACO_Charge (iOS/Android).
-- Đọc [04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md](04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md): Hợp đồng API REST và luồng xác thực JWT/OTP.
+- Đọc [04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md](04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md): **Cẩm nang đặc tả chi tiết toàn bộ API Mobile Driver THACO_Charge** (Đầy đủ ví dụ cURL, JSON request/response và mã lỗi cho đăng nhập, xe điện, bản đồ trạm, sạc xe, ví VietQR SePay).
 
 ---
 
@@ -140,7 +140,7 @@ flowchart TD
    - [Cẩm nang Hướng dẫn Thao tác Sạc Xe Dành cho Tài xế](03_HMI_TOUCH_PANEL/DRIVER_CHARGING_USER_MANUAL.md)
 7. **Phân hệ Ứng dụng Tài xế (THACO_Charge Mobile App):** [04_DRIVER_MOBILE_APP/README.md](04_DRIVER_MOBILE_APP/README.md)
    - [Tính năng Ứng dụng Tài xế](04_DRIVER_MOBILE_APP/DRIVER_APP_FEATURES.md)
-   - [Hợp đồng API & Luồng xác thực Auth](04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md)
+   - [Hợp đồng API & Cẩm nang Đặc tả Chi tiết RESTful API Mobile Driver (Kèm Ví Dụ cURL/JSON)](04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md)
 8. **Vận hành, Triển khai, An toàn & Xử lý Sự cố:** [05_OPERATIONS_AND_MAINTENANCE/README.md](05_OPERATIONS_AND_MAINTENANCE/README.md)
    - [Cẩm nang Xử lý Sự cố & Bảng Tra cứu Mã lỗi (Troubleshooting & Fault Codes)](05_OPERATIONS_AND_MAINTENANCE/TROUBLESHOOTING_AND_FAULT_CODES.md)
    - [Quy trình An toàn Điện & Nghiệm thu Trạm sạc (Safety & Commissioning)](05_OPERATIONS_AND_MAINTENANCE/ELECTRICAL_SAFETY_AND_COMMISSIONING.md)

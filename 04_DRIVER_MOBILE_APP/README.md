@@ -45,4 +45,4 @@ lib/
 ## 3. DANH MỤC TÀI LIỆU CHI TIẾT TRONG PHÂN HỆ
 
 1. [DRIVER_APP_FEATURES.md](DRIVER_APP_FEATURES.md): Mô tả chi tiết tính năng, luồng trải nghiệm người dùng và giao diện các màn hình.
-2. [API_CONTRACT_AND_AUTH.md](API_CONTRACT_AND_AUTH.md): Hợp đồng API REST với máy chủ CSMS Go Backend và cơ chế xác thực JWT/OTP an toàn.
+2. [API_CONTRACT_AND_AUTH.md](API_CONTRACT_AND_AUTH.md): **Đặc tả chi tiết toàn bộ RESTful API Ứng dụng Tài xế THACO_Charge** (Cẩm nang đầy đủ 7 nhóm nghiệp vụ: Đăng nhập/Session, Xe điện & Autocharge PnC, Bản đồ & Quét QR, Điều khiển sạc & Live Telemetry, Ví tiền & Nạp VietQR SePay, Thẻ RFID - kèm ví dụ cURL, JSON mẫu request/response và bảng mã lỗi).
