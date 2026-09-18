@@ -41,13 +41,13 @@ flowchart TD
     end
 
     CSMS <-->|WebSocket OCPP 1.6J / MQTT| ESP
-    ESP <-->|SPI 4-wire Full-Duplex DMA @ 10 MHz| F4
-    F4 <-->|RS485 Modbus RTU @ 115200 bps (Port 1)| H7
-    HMI <-->|RS485 Modbus RTU @ 115200 bps (Port 2)| H7
+    ESP <-->|SPI 4-wire Full-Duplex DMA 10 MHz| F4
+    F4 <-->|RS485 Modbus RTU 115200 bps Port 1| H7
+    HMI <-->|RS485 Modbus RTU 115200 bps Port 2| H7
     H7 <-->|FDCAN1| ACE
     H7 <-->|FDCAN2| SECC
     H7 <-->|UART8 RS485| METER
-    SECC <-->|Chân Pilot CP PLC (GreenPHY)| CAR
+    SECC <-->|Chân Pilot CP PLC GreenPHY| CAR
     ACE ==>|Cọc đồng DC+/DC-| CAR
 ```
 
@@ -121,30 +121,46 @@ Mọi gói tin truyền qua bus SPI đều tuân thủ cấu trúc khung nhị p
 #### A. Nhóm Quản lý Hệ thống & Wi-Fi:
 | Mã (Hex) | Tên hằng số Enum | Chiều truyền | Mô tả chức năng |
 | :---: | :--- | :---: | :--- |
-| `0x01` | `ESP_CMD_PING` | F4 $ightarrow$ ESP | Kiểm tra nhịp tim và kết nối SPI liveness |
-| `0x02` | `ESP_CMD_GET_STATUS` | F4 $ightarrow$ ESP | Lấy trạng thái mạng, RSSI, chế độ trạm |
-| `0x10` | `ESP_CMD_WIFI_SCAN` | F4 $ightarrow$ ESP | Yêu cầu quét các mạng Wi-Fi lân cận |
-| `0x11` | `ESP_CMD_WIFI_CONNECT`| F4 $ightarrow$ ESP | Kết nối vào mạng Wi-Fi với SSID & Password trong payload |
-| `0x12` | `ESP_CMD_WIFI_DISCONNECT`| F4 $ightarrow$ ESP | Ngắt kết nối Wi-Fi hiện tại |
-| `0x14` | `ESP_CMD_WIFI_GET_IP` | F4 $ightarrow$ ESP | Đọc địa chỉ IP đã được cấp phát từ DHCP |
-| `0x15` | `ESP_CMD_WIFI_SET_CONFIG`| F4 $ightarrow$ ESP | Cấu hình IP tĩnh hoặc DHCP |
+| `0x01` | `ESP_CMD_PING` | F4 $
+ightarrow$ ESP | Kiểm tra nhịp tim và kết nối SPI liveness |
+| `0x02` | `ESP_CMD_GET_STATUS` | F4 $
+ightarrow$ ESP | Lấy trạng thái mạng, RSSI, chế độ trạm |
+| `0x10` | `ESP_CMD_WIFI_SCAN` | F4 $
+ightarrow$ ESP | Yêu cầu quét các mạng Wi-Fi lân cận |
+| `0x11` | `ESP_CMD_WIFI_CONNECT`| F4 $
+ightarrow$ ESP | Kết nối vào mạng Wi-Fi với SSID & Password trong payload |
+| `0x12` | `ESP_CMD_WIFI_DISCONNECT`| F4 $
+ightarrow$ ESP | Ngắt kết nối Wi-Fi hiện tại |
+| `0x14` | `ESP_CMD_WIFI_GET_IP` | F4 $
+ightarrow$ ESP | Đọc địa chỉ IP đã được cấp phát từ DHCP |
+| `0x15` | `ESP_CMD_WIFI_SET_CONFIG`| F4 $
+ightarrow$ ESP | Cấu hình IP tĩnh hoặc DHCP |
 
 #### B. Nhóm Truyền tải Ổ cắm Mạng (Socket Tunneling - Phục vụ OCPP 1.6J):
 | Mã (Hex) | Tên hằng số Enum | Chiều truyền | Mô tả chức năng |
 | :---: | :--- | :---: | :--- |
-| `0x30` | `ESP_CMD_SOCKET_OPEN` | F4 $ightarrow$ ESP | Yêu cầu mở kết nối TCP/TLS WSS tới máy chủ CSMS Cloud |
-| `0x31` | `ESP_CMD_SOCKET_CLOSE`| F4 $ightarrow$ ESP | Đóng kết nối socket hiện tại |
-| `0x32` | `ESP_CMD_SOCKET_SEND` | F4 $ightarrow$ ESP | F4 gửi bản tin JSON OCPP (Call/CallResult) qua socket ra Internet |
-| `0x33` | `ESP_CMD_SOCKET_RECV` | F4 $ightarrow$ ESP | F4 kéo dữ liệu JSON OCPP mà máy chủ Cloud vừa gửi xuống |
-| `0x34` | `ESP_CMD_SOCKET_STATUS`| F4 $ightarrow$ ESP | Truy vấn trạng thái kết nối socket (Connected / Connecting / Closed) |
+| `0x30` | `ESP_CMD_SOCKET_OPEN` | F4 $
+ightarrow$ ESP | Yêu cầu mở kết nối TCP/TLS WSS tới máy chủ CSMS Cloud |
+| `0x31` | `ESP_CMD_SOCKET_CLOSE`| F4 $
+ightarrow$ ESP | Đóng kết nối socket hiện tại |
+| `0x32` | `ESP_CMD_SOCKET_SEND` | F4 $
+ightarrow$ ESP | F4 gửi bản tin JSON OCPP (Call/CallResult) qua socket ra Internet |
+| `0x33` | `ESP_CMD_SOCKET_RECV` | F4 $
+ightarrow$ ESP | F4 kéo dữ liệu JSON OCPP mà máy chủ Cloud vừa gửi xuống |
+| `0x34` | `ESP_CMD_SOCKET_STATUS`| F4 $
+ightarrow$ ESP | Truy vấn trạng thái kết nối socket (Connected / Connecting / Closed) |
 
 #### C. Nhóm Telemetry & Nâng cấp OTA (Sub-chunking $\le 512$ Bytes):
 | Mã (Hex) | Tên hằng số Enum | Chiều truyền | Mô tả chức năng |
 | :---: | :--- | :---: | :--- |
-| `0x40` | `ESP_CMD_REPORT_TELEMETRY` | F4 $ightarrow$ ESP | F4 gửi thông số V, I, kWh, SoC lên ESP32 để hiển thị Web Dashboard `10.14.80.19` |
-| `0x50` | `ESP_CMD_OTA_GET_CHUNK` | F4 $ightarrow$ ESP | F4 yêu cầu ESP32 trả về 1 phân đoạn dữ liệu firmware mới ($\le 512	ext{B}$) |
-| `0x51` | `ESP_CMD_OTA_REPORT_RESULT`| F4 $ightarrow$ ESP | F4 báo kết quả nạp firmware (Hoàn tất / Thất bại / Lỗi CRC32) |
-| `0xFF` | `ESP_CMD_REBOOT` | F4 $ightarrow$ ESP | Yêu cầu khởi động lại ESP32 |
+| `0x40` | `ESP_CMD_REPORT_TELEMETRY` | F4 $
+ightarrow$ ESP | F4 gửi thông số V, I, kWh, SoC lên ESP32 để hiển thị Web Dashboard `10.14.80.19` |
+| `0x50` | `ESP_CMD_OTA_GET_CHUNK` | F4 $
+ightarrow$ ESP | F4 yêu cầu ESP32 trả về 1 phân đoạn dữ liệu firmware mới ($\le 512\text{B}$) |
+| `0x51` | `ESP_CMD_OTA_REPORT_RESULT`| F4 $
+ightarrow$ ESP | F4 báo kết quả nạp firmware (Hoàn tất / Thất bại / Lỗi CRC32) |
+| `0xFF` | `ESP_CMD_REBOOT` | F4 $
+ightarrow$ ESP | Yêu cầu khởi động lại ESP32 |
 
 #### D. Các Sự kiện Bất đồng bộ từ ESP32 (Asynchronous Events):
 - `0x10` (`ESP_EVT_WIFI_CONNECTED`): Đã kết nối vào Access Point.
@@ -245,7 +261,8 @@ Không gian thanh ghi của STM32H743 được tổ chức thành các vùng ch�
 | `0x011B` | `0x021B` | `BMS_REQ_CURRENT` | `uint16` | 0.1 A | Dòng điện do BMS xe yêu cầu cấp |
 | `0x011F` | `0x021F` | `STOP_CAUSE` | `uint16` | Enum | Lý do kết thúc phiên (`1`: Local, `2`: Remote, `3`: Emergency) |
 | `0x0120` | `0x0220` | `PRIMARY_FAULT_CODE`| `uint16` | Mã lỗi Hex | Mã sự cố chính khi trạm dừng bất thường |
-| `0x0123` | `0x0223` | `SNAPSHOT_SEQ_END` | `uint16` | Bộ đếm | Mã sequence cuối snapshot. Nếu `BEGIN == END` $ightarrow$ Dữ liệu hợp lệ |
+| `0x0123` | `0x0223` | `SNAPSHOT_SEQ_END` | `uint16` | Bộ đếm | Mã sequence cuối snapshot. Nếu `BEGIN == END` $
+ightarrow$ Dữ liệu hợp lệ |
 
 ---
 
@@ -379,7 +396,7 @@ sequenceDiagram
 
 1. **Mất nhịp tim liveness giữa F429 và H743:**
    - H743 liên tục tăng thanh ghi `ALIVE_COUNTER` (`0x0006`). F429 đọc thanh ghi này chu kỳ 100ms.
-   - Nếu trong vòng **$> 3	ext{ giây}$**, F429 không đọc được Modbus hoặc giá trị `ALIVE_COUNTER` không thay đổi:
+   - Nếu trong vòng **$> 3\text{ giây}$**, F429 không đọc được Modbus hoặc giá trị `ALIVE_COUNTER` không thay đổi:
      - F429 đánh dấu trạm `Unavailable` và báo lỗi lên CSMS Cloud.
      - Đồng thời, watchdog bên trong H743 phát hiện không có lệnh polling từ F429 sẽ tự động kích hoạt chu trình dừng sạc khẩn cấp: ngắt contactor DC chính và kéo nguồn module về OFF.
 2. **Mất liên kết SPI giữa F429 và ESP32-C6:**
@@ -388,4 +405,4 @@ sequenceDiagram
      - Toàn bộ dữ liệu phiên sạc vẫn được lưu an toàn trong RAM của F429 và H743, không làm gián đoạn dòng điện đang sạc xe.
 3. **Nút Dừng Khẩn Cấp (E-Stop) hoặc Rò điện IMD:**
    - Tín hiệu nút E-Stop và tiếp điểm cảnh báo rò điện cách ly IMD được đấu nối cứng trực tiếp vào các chân ngắt ngoài EXTI của vi điều khiển **STM32H743**.
-   - Khi có sự cố, mạch ngắt phần cứng của H743 lập tức ngắt cuộn hút contactor trong thời gian **$< 20	ext{ ms}$** và phát lệnh tắt nguồn khẩn cấp qua FDCAN1 mà không cần chờ bất kỳ sự cho phép nào từ F429 hay màn hình HMI.
+   - Khi có sự cố, mạch ngắt phần cứng của H743 lập tức ngắt cuộn hút contactor trong thời gian **$< 20\text{ ms}$** và phát lệnh tắt nguồn khẩn cấp qua FDCAN1 mà không cần chờ bất kỳ sự cho phép nào từ F429 hay màn hình HMI.

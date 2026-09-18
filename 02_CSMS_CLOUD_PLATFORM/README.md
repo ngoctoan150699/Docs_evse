@@ -14,9 +14,9 @@ Hệ thống CSMS của THACO được thiết kế theo mô hình Microservices
 
 ```mermaid
 flowchart TD
-    CP["⚡ Hàng nghìn Trụ sạc EVSE"] -->|WebSocket WSS:9000 (OCPP 1.6J)| GW["1. ocpp-gateway Service (Go)<br/>• Quản lý kết nối WebSocket tập trung<br/>• Xác thực Security Profile 1/2/3<br/>• Phản hồi Heartbeat tức thì"]
+    CP["⚡ Hàng nghìn Trụ sạc EVSE"] -->|WebSocket WSS:9000 OCPP 1.6J| GW["1. ocpp-gateway Service (Go)<br/>• Quản lý kết nối WebSocket tập trung<br/>• Xác thực Security Profile 1/2/3<br/>• Phản hồi Heartbeat tức thì"]
     
-    GW <-->|Redis PubSub (Presence)| RD[("Redis Cluster / Redis 7")]
+    GW <-->|Redis PubSub Presence| RD[("Redis Cluster / Redis 7")]
     GW -->|XAdd ocpp.inbound| RS["Redis Streams Queue<br/>(Bộ đệm hàng đợi siêu tốc)"]
     
     RS -->|XReadGroup| WK["2. worker Service (Go)<br/>• Xử lý nghiệp vụ nền bất đồng bộ<br/>• Dedupe & Batch Insert MeterValues<br/>• Tính cước tự động & Xử lý Alert"]

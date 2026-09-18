@@ -69,12 +69,12 @@ flowchart TD
 
     DRIVER_APP <-->|HTTPS REST / WSS| CSMS
     CSMS <-->|WebSocket OCPP 1.6J / MQTT| ESP
-    ESP <-->|SPI 4-wire Full-Duplex DMA @ 10 MHz| F4
-    F4 <-->|RS485 Modbus RTU @ 115200 bps| H7
+    ESP <-->|SPI 4-wire Full-Duplex DMA 10 MHz| F4
+    F4 <-->|RS485 Modbus RTU 115200 bps| H7
     HMI <-->|RS485 Modbus RTU| F4
-    H7 <-->|FDCAN1 @ 125 kbps| ACE
-    H7 <-->|FDCAN2 @ 500 kbps| SECC
-    H7 <-->|UART8 RS485 @ 9600 bps| DCM
+    H7 <-->|FDCAN1 125 kbps| ACE
+    H7 <-->|FDCAN2 500 kbps| SECC
+    H7 <-->|UART8 RS485 9600 bps| DCM
     H7 --- ESTOP
     SECC <-->|Chân Pilot CP PLC| CAR
     ACE ==>|Cáp điện DC+/DC-| CAR
