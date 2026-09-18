@@ -406,3 +406,161 @@ sequenceDiagram
 3. **Nút Dừng Khẩn Cấp (E-Stop) hoặc Rò điện IMD:**
    - Tín hiệu nút E-Stop và tiếp điểm cảnh báo rò điện cách ly IMD được đấu nối cứng trực tiếp vào các chân ngắt ngoài EXTI của vi điều khiển **STM32H743**.
    - Khi có sự cố, mạch ngắt phần cứng của H743 lập tức ngắt cuộn hút contactor trong thời gian **$< 20\text{ ms}$** và phát lệnh tắt nguồn khẩn cấp qua FDCAN1 mà không cần chờ bất kỳ sự cho phép nào từ F429 hay màn hình HMI.
+
+---
+
+## 6. CƠ CHẾ KHỞI ĐỘNG (BOOT SEQUENCE), XỬ LÝ SỰ CỐ RESET & KHÔI PHỤC MẠNG ETHERNET/OFFLINE
+
+Trong thực tế vận hành ngoài hiện trường trạm sạc, các sự cố như mất điện lưới chập chờn, sụt áp nguồn nuôi 24V/3.3V, xung nhiễu điện từ công suất cao, hoặc đứt cáp mạng Ethernet hoàn toàn có thể xảy ra. Hệ thống 3 vi điều khiển THACO EVSE được thiết kế với cơ chế tự phục hồi (Self-Healing) và khả năng chịu lỗi ngoại tuyến (Offline Resilience) tối đa:
+
+```mermaid
+flowchart TD
+    subgraph POWER_ON ["BẬT NGUỒN TRẠM SẠC (POWER-ON)"]
+        H7_BOOT["STM32H743 Boot (120ms)<br/>• Init FDCAN1/2, UART7/8, EXTI<br/>• Sinh Random H7_BOOT_ID<br/>• Giữ Contactor DC = OFF"]
+        F4_BOOT["STM32F429 Boot (150ms)<br/>• Init SPI2 DMA, USART6 Modbus<br/>• FreeRTOS Task Scheduler<br/>• Bắt đầu phát PING qua SPI"]
+        ESP_BOOT["ESP32-C6 Boot (800 - 1200ms)<br/>• Nạp ROM Bootloader, RF Calib<br/>• Khởi tạo SPI Slave Transport<br/>• Phát ESP_EVT_BOOT_READY"]
+    end
+
+    H7_BOOT -->|Chờ Modbus Master| SYNC_MODBUS["Đồng bộ Modbus RTU<br/>F4 đọc H7_BOOT_ID & Alive"]
+    F4_BOOT --> SYNC_MODBUS
+    F4_BOOT -->|Poll SPI PING chu kỳ 200ms| SYNC_SPI["Đồng bộ Bus SPI DMA<br/>F4 nhận BOOT_READY từ ESP32"]
+    ESP_BOOT --> SYNC_SPI
+
+    SYNC_SPI --> NET_INIT["Kết nối Mạng Ethernet / Wi-Fi<br/>ESP32 cấp phát IP -> Mở WSS:9000"]
+    NET_INIT --> OCPP_ONLINE["Trạm Sạc Sẵn Sàng (Online CSMS)"]
+```
+
+---
+
+### 6.1. Trình tự Khởi động Bất đồng bộ: Trường hợp ESP32 khởi động chậm hơn F429 & H743
+
+#### Thực tế phần cứng:
+- Hai vi điều khiển **STM32H743** (Cortex-M7) và **STM32F429** (Cortex-M4) thực thi code trực tiếp từ bộ nhớ Flash nhúng nội chip với tốc độ xung nhịp cực cao (480MHz / 180MHz), hoàn tất quá trình Boot, cấu hình Clock, Peripheral và nạp FreeRTOS chỉ trong **$< 150\text{ ms}$**.
+- **ESP32-C6** (RISC-V) sử dụng chip Flash ngoài giao tiếp SPI, phải trải qua giai đoạn ROM bootloader, kiểm tra Second-stage bootloader, khởi tạo khối RF Wi-Fi/Bluetooth và tải FreeRTOS của Espressif, thời gian khởi động kéo dài từ **$800\text{ ms}$ đến $1200\text{ ms}$**.
+
+#### Cơ chế xử lý của STM32F429 (Chống treo CPU):
+1. **Khởi tạo Non-blocking:** STM32F429 khởi tạo cổng `SPI2` ở chế độ Master DMA nhưng **tuyệt đối không dùng vòng lặp `while()` chặn chờ ESP32**.
+2. **Polling Liveness mềm:** F429 kích hoạt một phần mềm định thời (Software Timer trong task `StartOcppTask`) định kỳ mỗi `200ms` kéo chân CS (`PB15`) xuống mức thấp và phát khung lệnh `ESP_CMD_PING` (`0x01`).
+3. **Phản hồi Boot Ready:** Khi ESP32-C6 vừa hoàn tất hàm `app_main()` và gọi `spi_slave_init()`, nó lập tức đưa sự kiện `ESP_EVT_BOOT_READY` (`0x01`) vào hàng đợi phản hồi DMA.
+4. **Bắt tay đồng bộ (Handshake):** F429 nhận được mã phản hồi hợp lệ có chứa Magic `0xAE53`, đánh dấu liên kết SPI sẵn sàng (`s_spi_link_ready = true`), chuyển sang gửi lệnh kết nối mạng hoặc gọi `wifi_mgr_resume()`.
+5. **Trạng thái Trụ sạc trong lúc chờ ESP32:** Trong 1 giây đầu tiên này, STM32H743 và F429 đã giao tiếp Modbus thông suốt với nhau. Màn hình HMI đã hiển thị giao diện trạm sạc bình thường. Nếu tài xế cắm súng ngay lập tức, H743 vẫn phát hiện súng sạc (`Plugged`) và chuẩn bị sẵn sàng, hoàn toàn không bị trễ hay lỗi hệ thống.
+
+---
+
+### 6.2. Kịch bản Xử lý Sự cố khi Một Vi Điều Khiển Bị Reset Bất Thường
+
+Hệ thống phân lập 3 kịch bản lỗi và áp dụng cơ chế tự phục hồi (Self-Healing) tương ứng:
+
+```text
++----------------------------------------------------------------------------------------------------+
+|                       MA TRẬN XỬ LÝ KHI CÓ 1 VI ĐIỀU KHIỂN BỊ RESET BẤT THƯỜNG                     |
++-------------------+--------------------------------+-----------------------------------------------+
+| Vi điều khiển lỗi | Trạng thái Dòng Sạc Cao Thế    | Hành vi Phục hồi & Tự chữa lành (Self-Healing)|
++-------------------+--------------------------------+-----------------------------------------------+
+| ESP32-C6 Reset    | KHÔNG BỊ GIÁN ĐOẠN             | F429 đệm tin vào RAM/Flash. ESP32 boot lại    |
+| (Watchdog/Sụt áp) | Xe tiếp tục sạc an toàn        | tự resume Wi-Fi/Ethernet, đồng bộ lại CSMS.   |
++-------------------+--------------------------------+-----------------------------------------------+
+| STM32F429 Reset   | KHÔNG BỊ GIÁN ĐOẠN             | H743 giữ dòng sạc (Timeout 8s). F429 boot lại |
+| (Swap Bank/Fault) | (Nếu F4 boot lại < 8 giây)     | trong 150ms, đọc H7 state, khôi phục session. |
++-------------------+--------------------------------+-----------------------------------------------+
+| STM32H743 Reset   | NGẮT AN TOÀN TỨC THÌ (< 20ms)  | Contactor DC nhả lò xo tự do. Boot lại sinh   |
+| (Sự cố điện/HW)   | Kéo toàn bộ nguồn về OFF       | H7_BOOT_ID mới -> HMI/F4 hủy lệnh, reset trụ. |
++-------------------+--------------------------------+-----------------------------------------------+
+```
+
+#### Kịch bản A: ESP32-C6 bị Reset (Do Watchdog, sụt áp, hoặc Soft Reboot sau khi nạp OTA)
+- **Ảnh hưởng đến phiên sạc:** **Hoàn toàn KHÔNG ảnh hưởng**. Dòng điện cao thế sạc vào pin xe ô tô được duy trì liên tục và an toàn bởi STM32H743 và STM32F429.
+- **Hành vi của F429:**
+  - Khi không nhận được phản hồi PING qua SPI trong 3 giây liên tiếp, F429 chuyển trạng thái mạng nội bộ sang `WS_OFFLINE`.
+  - Toàn bộ các gói tin đo đếm `MeterValues` phát sinh trong lúc mất ESP32 được F429 ghi tạm vào bộ đệm hàng đợi ngoại tuyến (Offline Circular Buffer trong Flash/RAM).
+- **Quá trình phục hồi:**
+  - ESP32 khởi động lại, kích hoạt hàm `wifi_mgr_resume()`, tự động kết nối lại mạng Wi-Fi hoặc Ethernet từ thông số lưu trong bộ nhớ NVS.
+  - Sau khi kết nối mạng có IP, ESP32 mở lại kết nối WebSocket WSS:9000 tới CSMS Cloud.
+  - F429 phát hiện kết nối WSS đã khôi phục (`MINIOCPP_EVENT_CONNECTED`), tiến hành kéo tuần tự toàn bộ các bản tin `MeterValues` trong hàng đợi đọng đẩy lên Cloud, bảo toàn nguyên vẹn dữ liệu đo đếm phục vụ tính tiền.
+
+#### Kịch bản B: STM32F429 bị Reset (Do cờ hoán đổi Live Dual-Bank Flash hoặc lỗi tác vụ)
+- **Thời gian khởi động lại:** F429 khởi động lại chỉ mất khoảng **`150ms`**.
+- **Cơ chế dung sai nhịp tim trên H743 (`H7_COMM_OFFLINE_TIMEOUT_MS = 8000ms`):**
+  - STM32H743 có bộ đếm thời gian kiểm tra giao tiếp Modbus với F429. H743 thiết lập ngưỡng thời gian chờ lên tới **8 giây** trước khi ra quyết định dừng khẩn cấp.
+  - Do F429 boot lại chỉ mất 150ms (nhỏ hơn rất nhiều so với 8000ms), dòng điện nạp vào xe **không hề bị gián đoạn**.
+- **Quá trình phục hồi:**
+  - F429 sau khi boot xong, lập tức gửi lệnh Modbus Function Code `0x03` đọc vùng thanh ghi `0x0000` và `0x0100` của H743.
+  - F429 đọc thấy `EVSE_STATE == 6` (Charging) và kiểm tra thấy `H7_BOOT_ID` không đổi $\rightarrow$ F429 nhận diện phiên sạc vẫn đang tiếp diễn hợp lệ.
+  - F429 tải lại `TransactionId` đang lưu trong EEPROM/Flash, tiếp tục đọc Wh từ H743 và duy trì gửi bản tin về CSMS như chưa từng xảy ra sự cố.
+  - *Trường hợp xấu nhất (F429 chết hẳn quá 8 giây):* Bộ đếm H743 hết hạn ($> 8\text{s}$), H743 tự động kích hoạt máy trạng thái dừng an toàn `SafeStop`: hạ dòng về 0A và ngắt contactor DC chính.
+
+#### Kịch bản C: STM32H743 bị Reset (Sự cố phần cứng nghiêm trọng hoặc sụt nguồn cao áp)
+- **Cơ chế bảo vệ vật lý tuyệt đối (Hardware Fail-Safe Interlock):**
+  - Chân GPIO điều khiển cuộn hút Contactor DC chính của trạm sạc được thiết kế kéo tích cực mức cao từ H743.
+  - Khi H743 bị reset, toàn bộ các chân I/O lập tức rơi về trạng thái thả nổi (Floating/High-Z) hoặc bị kéo xuống đất bởi điện trở trở kéo ngoài `R_PULLDOWN = 10k\Omega`.
+  - $\rightarrow$ **Cuộn hút Contactor DC mất điện tức thì:** Tiếp điểm lực tự động mở bung nhờ lực đẩy của lò xo cơ học trong thời gian **$< 20\text{ ms}$**, lập tức cách ly hoàn toàn nguồn điện 1000V DC ra khỏi xe ô tô, triệt tiêu mọi nguy cơ cháy nổ.
+- **Cơ chế nhận diện qua `H7_BOOT_ID`:**
+  - Khi H743 khởi động lại, hàm khởi tạo sinh ra một giá trị ngẫu nhiên `H7_BOOT_ID` mới (32-bit Random UUID ghi tại thanh ghi `0x0007 - 0x0008`).
+  - Màn hình Android HMI và STM32F429 đọc Modbus phát hiện `H7_BOOT_ID` bị thay đổi so với phiên trước đó.
+  - HMI và F429 lập tức hủy toàn bộ lệnh điều khiển cũ trong Command Mailbox (`0x0700` và `0x0740`), kết thúc phiên sạc cũ với mã lý do `StopReason: HardwareReset`, gửi cảnh báo `StatusNotification(Faulted)` lên CSMS và chuyển trạng thái về `Idle` chờ người dùng cắm sạc lại từ đầu.
+
+---
+
+### 6.3. Cơ chế Tự Khôi Phục Đường Truyền Mạng Ethernet & Wi-Fi (Network Failover)
+
+Khối truyền thông mạng do vi điều khiển ESP32-C6 trực tiếp quản lý với cơ chế giám sát lớp vật lý (PHY Monitor):
+
+```mermaid
+stateDiagram-v2
+    [*] --> LAN_ACTIVE: Cắm cáp Ethernet (Link Up)
+    
+    LAN_ACTIVE --> LAN_DOWN: Rút dây mạng / Mất switch
+    LAN_DOWN --> CHECK_WIFI: Phát hiện ETH PHY Link Down
+    
+    state CHECK_WIFI {
+        [*] --> SCAN_AP: Bật Wi-Fi Station
+        SCAN_AP --> CONNECT_WIFI: Tìm thấy SSID THACO_STATION
+        CONNECT_WIFI --> WIFI_ACTIVE: Nhận IP từ Wi-Fi
+    }
+    
+    WIFI_ACTIVE --> LAN_RECOVERED: Cắm lại dây mạng Ethernet
+    LAN_RECOVERED --> DHCP_RENEW: ETH PHY Link Up (< 500ms)
+    DHCP_RENEW --> LAN_ACTIVE: Ưu tiên đường cáp đồng LAN
+    
+    LAN_DOWN --> OFFLINE_MODE: Không có Wi-Fi dự phòng
+    OFFLINE_MODE --> DHCP_RENEW: Cắm lại dây mạng
+```
+
+#### 1. Phát hiện mất liên kết Ethernet (Link Down):
+- ESP32-C6 giao tiếp với IC Ethernet PHY (chuẩn RMII như LAN8720 hoặc W5500 SPI) liên tục giám sát thanh ghi trạng thái đường truyền (Basic Mode Status Register - BMSR).
+- Khi cáp mạng bị đứt, tuột đầu bấm RJ45 hoặc Switch mạng tại trạm mất điện: Trong vòng **$< 100\text{ ms}$**, chip PHY phát ngắt Link Down.
+- ESP32 chuyển cờ `lan_online = false` và gửi sự kiện `ESP_EVT_SOCKET_CLOSED` qua bus SPI thông báo cho STM32F429.
+
+#### 2. Cơ chế khôi phục tự động khi cắm lại cáp mạng (Auto-Reconnection Flow):
+1. **Phát hiện Link Up:** Ngay khi cáp mạng được cắm lại, chip PHY đàm phán tốc độ tự động (Auto-Negotiation 100Mbps Full-Duplex) trong vòng **$< 500\text{ ms}$**.
+2. **Cấp phát lại IP qua DHCP:** ESP32 kích hoạt tiến trình DHCP Client, gửi gói `DHCP Discover` để xin cấp lại địa chỉ IP, Subnet Mask và Gateway.
+3. **Phục hồi Socket WSS tới Cloud:**
+   - Sau khi nhận được sự kiện `IP_EVENT_ETH_GOT_IP`, ESP32 giải quyết địa chỉ DNS tên miền máy chủ CSMS (`csms.thaco.vn`).
+   - Mở lại luồng WebSocket TLS/WSS qua cổng `9000`.
+4. **Bắt tay đồng bộ lại giao thức OCPP:**
+   - F429 phát hiện Socket đã kết nối trở lại, gửi bản tin kiểm tra nhịp tim `Heartbeat.req`.
+   - Nếu phiên sạc bị mất kết nối trong thời gian dài, F429 gửi lại bản tin `StatusNotification` để đồng bộ lại trạng thái thực tế của súng sạc trên Dashboard Cloud của trung tâm điều hành.
+
+---
+
+### 6.4. Trạng Thái Hoạt Động của Trạm Sạc khi Mất Mạng Hoàn Toàn (Offline Resilience)
+
+Một trong những tiêu chí khắt khe nhất của hệ thống trạm sạc xe điện thương mại là: **Mất kết nối mạng Internet tuyệt đối không được làm ảnh hưởng đến trải nghiệm sạc an toàn của khách hàng**.
+
+#### A. Đối với phiên sạc ĐANG DIỄN RA khi mạng bị rớt:
+1. **Tiếp tục nạp điện bình thường:**
+   - Trụ sạc **TUYỆT ĐỐI KHÔNG NGẮT SẠC** khi mất mạng.
+   - Xe điện tiếp tục nhận dòng điện DC liên tục vì chu trình trao đổi công suất diễn ra cục bộ qua đường dây truyền thông PLC giữa xe và bộ điều khiển SECC/H743.
+2. **Đo đếm điện năng và tính tiền chính xác:**
+   - Công tơ DC Eastron DCM230 vẫn tiếp tục đo đếm từng Wh điện tích lũy qua cổng UART8 của H743.
+   - Màn hình Android HMI vẫn hiển thị trực quan đồ họa Arc Gauge % pin (SoC), công suất nạp (kW) và số tiền phát sinh theo biểu giá đã được lưu trong bộ nhớ Flash (`0x0500`).
+3. **Lưu trữ ngoại tuyến an toàn (Offline Storage):**
+   - STM32F429 ghi nhận các mẫu đo đếm `MeterValues` và bản tin kết thúc `StopTransaction` vào bộ nhớ Flash nội (dung lượng cho phép lưu trữ tối thiểu **hơn 200 phiên sạc hoàn chỉnh**).
+   - Khi mạng Internet có trở lại, trạm sạc tự động gửi bù toàn bộ các phiên sạc này lên CSMS Cloud theo thứ tự thời gian (FIFO) để hệ thống quyết toán và trừ tiền ví tài xế chính xác đến từng đồng.
+
+#### B. Đối với việc BẮT ĐẦU PHIÊN SẠC MỚI khi trạm đang mất mạng:
+| Phương thức sạc | Khả năng hoạt động khi Mất Mạng | Cách thức vận hành |
+| :--- | :---: | :--- |
+| **Thẻ sạc RFID vật lý** | **HOẠT ĐỘNG BÌNH THƯỜNG (100%)** | F429 kích hoạt cơ chế `LocalAuthorizeOffline = true`. Đối chiếu mã thẻ với **Danh sách Thẻ trắng Cục bộ (Local Authorization Whitelist Cache)** được lưu sẵn trong Flash. Nếu thẻ hợp lệ, trạm lập tức đóng contactor và cấp điện sạc bình thường. |
+| **Ứng dụng Mobile App / Quét mã QR** | Tạm ngưng kích hoạt mới | Ứng dụng THACO Charge trên điện thoại kiểm tra thấy trạm báo trạng thái `Offline` trên bản đồ, thông báo cho tài xế chuyển sang quẹt thẻ RFID hoặc sử dụng trạm sạc lân cận. |
+| **Nút Dừng Khẩn Cấp (E-Stop) & Dừng tại chỗ** | **HOẠT ĐỘNG BÌNH THƯỜNG (100%)** | Nút dừng sạc trên màn hình HMI hoặc Nút nhấn dừng khẩn cấp cơ học (E-Stop) hoạt động hoàn toàn bằng ngắt phần cứng, dừng ngắt nguồn ngay lập tức mà không cần bất kỳ tín hiệu mạng nào. |

@@ -70,7 +70,7 @@ Hệ thống trạm sạc vận hành trơn tru nhờ sự phối hợp nhịp n
 
 ## 4. DANH MỤC TÀI LIỆU KỸ THUẬT CHI TIẾT TRONG PHÂN HỆ
 
-1. [INTER_MCU_COMMUNICATION_AND_REGISTERS.md](INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang toàn diện về giao thức truyền thông SPI DMA, RS485 Modbus RTU và bản đồ thanh ghi chi tiết giữa 3 vi điều khiển và màn hình HMI.**
+1. [INTER_MCU_COMMUNICATION_AND_REGISTERS.md](INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang toàn diện về giao thức truyền thông SPI DMA, RS485 Modbus RTU và bản đồ thanh ghi chi tiết giữa 3 vi điều khiển và màn hình HMI** (Bao gồm cơ chế Boot bất đồng bộ khi ESP32 khởi động chậm hơn, ma trận tự phục hồi khi có 1 MCU bị reset, quy trình khôi phục mạng Ethernet tự động và vận hành ngoại tuyến Offline Mode khi mất mạng).
 2. [HARDWARE_PINOUT_AND_BUSES.md](HARDWARE_PINOUT_AND_BUSES.md): Sơ đồ chân nối pinout chi tiết, thông số và ranh giới các bus SPI DMA, RS485, FDCAN.
 3. [MODBUS_REGISTER_MAP.md](MODBUS_REGISTER_MAP.md): Bảng ánh xạ thanh ghi Modbus RTU chuẩn giữa HMI, F429 và H743.
 4. [OTA_UPDATE_SPECIFICATION.md](OTA_UPDATE_SPECIFICATION.md): Đặc tả nạp firmware OTA qua Web & MQTT, cơ chế phân đoạn sub-chunking 512B và Live Dual-Bank Flash Swap.
