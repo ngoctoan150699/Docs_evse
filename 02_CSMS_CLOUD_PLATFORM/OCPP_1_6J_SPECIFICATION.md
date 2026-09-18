@@ -1,13 +1,13 @@
-﻿# Äáº¶C Táº¢ CHI TIáº¾T GIAO THá»¨C TRUYá»€N THÃ”NG OCPP 1.6J
+# ĐẶC TẢ CHI TIẾT GIAO THỨC TRUYỀN THÔNG OCPP 1.6J
 ## (OPEN CHARGE POINT PROTOCOL 1.6 JSON SPECIFICATION)
-### Há»‡ thá»‘ng: THACO EVSE DC Fast Charger & CSMS Cloud Platform
+### Hệ thống: THACO EVSE DC Fast Charger & CSMS Cloud Platform
 
 ---
 
-## Má»¤C Lá»¤C
-1. [Tá»•ng quan Kiáº¿n trÃºc & Háº¡ táº§ng Máº¡ng OCPP](#1-tá»•ng-quan-kiáº¿n-trÃºc--háº¡-táº§ng-máº¡ng-ocpp)
-2. [Cáº¥u trÃºc Khung báº£n tin JSON-RPC 2.0](#2-cáº¥u-trÃºc-khung-báº£n-tin-json-rpc-20)
-3. [Danh má»¥c Báº£n tin Chiá»u Tráº¡m sáº¡c gá»­i MÃ¡y chá»§ (Client -> CSMS)](#3-danh-má»¥c-báº£n-tin-chiá»u-tráº¡m-sáº¡c-gá»­i-mÃ¡y-chá»§-client---csms)
+## MỤC LỤC
+1. [Tổng quan Kiến trúc & Hạ tầng Mạng OCPP](#1-tổng-quan-kiến-trúc--hạ-tầng-mạng-ocpp)
+2. [Cấu trúc Khung bản tin JSON-RPC 2.0](#2-cấu-trúc-khung-bản-tin-json-rpc-20)
+3. [Danh mục Bản tin Chiều Trạm sạc gửi Máy chủ (Client -> CSMS)](#3-danh-mục-bản-tin-chiều-trạm-sạc-gửi-máy-chủ-client---csms)
    - 3.1. BootNotification
    - 3.2. Heartbeat
    - 3.3. StatusNotification
@@ -18,7 +18,7 @@
    - 3.8. DataTransfer (Vehicle Identity)
    - 3.9. DiagnosticsStatusNotification
    - 3.10. FirmwareStatusNotification
-4. [Danh má»¥c Báº£n tin Chiá»u MÃ¡y chá»§ gá»­i Tráº¡m sáº¡c (CSMS -> Client)](#4-danh-má»¥c-báº£n-tin-chiá»u-mÃ¡y-chá»§-gá»­i-tráº¡m-sáº¡c-csms---client)
+4. [Danh mục Bản tin Chiều Máy chủ gửi Trạm sạc (CSMS -> Client)](#4-danh-mục-bản-tin-chiều-máy-chủ-gửi-trạm-sạc-csms---client)
    - 4.1. RemoteStartTransaction
    - 4.2. RemoteStopTransaction
    - 4.3. Reset
@@ -32,39 +32,47 @@
    - 4.11. SetChargingProfile, ClearChargingProfile & GetCompositeSchedule
    - 4.12. SendLocalList & GetLocalListVersion
    - 4.13. GetDiagnostics & UpdateFirmware
-5. [Báº£ng Ma tráº­n Tham sá»‘ Cáº¥u hÃ¬nh (Configuration Keys)](#5-báº£ng-ma-tráº­n-tham-sá»‘-cáº¥u-hÃ¬nh-configuration-keys)
-6. [PhÃ¢n tÃ­ch Khoáº£ng trá»‘ng (Gap Analysis) - Dá»± Ã¡n CÃ²n Thiáº¿u Nhá»¯ng GÃ¬?](#6-phÃ¢n-tÃ­ch-khoáº£ng-trá»‘ng-gap-analysis---dá»±-Ã¡n-cÃ²n-thiáº¿u-nhá»¯ng-gÃ¬)
-   - 6.1. Khoáº£ng trá»‘ng so vá»›i chuáº©n OCA OCPP 1.6J Edition 2 Ä‘áº§y Ä‘á»§
-   - 6.2. So sÃ¡nh vÃ  Lá»™ trÃ¬nh NÃ¢ng cáº¥p lÃªn OCPP 2.0.1
-7. [Ká»‹ch báº£n & HÆ°á»›ng dáº«n Kiá»ƒm thá»­ GÃ³i tin Thá»±c táº¿](#7-ká»‹ch-báº£n--hÆ°á»›ng-dáº«n-kiá»ƒm-thá»­-gÃ³i-tin-thá»±c-táº¿)
+5. [Bảng Ma trận Tham số Cấu hình (Configuration Keys)](#5-bảng-ma-trận-tham-số-cấu-hình-configuration-keys)
+6. [Phân tích Khoảng trống (Gap Analysis) - Dự án Còn Thiếu Những Gì?](#6-phân-tích-khoảng-trống-gap-analysis---dự-án-còn-thiếu-những-gì)
+   - 6.1. Khoảng trống so với chuẩn OCA OCPP 1.6J Edition 2 đầy đủ
+   - 6.2. So sánh và Lộ trình Nâng cấp lên OCPP 2.0.1
+7. [Kịch bản & Hướng dẫn Kiểm thử Gói tin Thực tế](#7-kịch-bản--hướng-dẫn-kiểm-thử-gói-tin-thực-tế)
 
 ---
 
-## 1. Tá»”NG QUAN KIáº¾N TRÃšC & Háº  Táº¦NG Máº NG OCPP
+## 1. TỔNG QUAN KIẾN TRÚC & HẠ TẦNG MẠNG OCPP
 
-Há»‡ sinh thÃ¡i tráº¡m sáº¡c xe Ä‘iá»‡n THACO EVSE triá»ƒn khai giao thá»©c chuáº©n cÃ´ng nghiá»‡p **OCPP 1.6 JSON (OCPP 1.6J)** theo kiáº¿n trÃºc PhÃ¢n tÃ¡n pháº§n cá»©ng vÃ  HÆ°á»›ng sá»± kiá»‡n (Event-Driven Cloud Architecture).
+Hệ sinh thái trạm sạc xe điện THACO EVSE triển khai giao thức chuẩn công nghiệp **OCPP 1.6 JSON (OCPP 1.6J)** theo kiến trúc Phân tán phần cứng và Hướng sự kiện (Event-Driven Cloud Architecture).
 
-### 1.1. Luá»“ng dá»¯ liá»‡u 3 táº§ng (End-to-End Data Path)
+### 1.1. Luồng dữ liệu 3 tầng (End-to-End Data Path)
 
-`mermaid
+```mermaid
 flowchart LR
-    subgraph CP ["TRáº M Sáº C HIá»†N TRÆ¯á»œNG"]
+    subgraph CP ["TRẠM SẠC HIỆN TRƯỜNG"]
         subgraph F4 ["STM32F429 (OCPP Master)"]
-            MINI["MiniOCPP Engine\n(Pure C / Static Memory)"]
+            MINI["MiniOCPP Engine
+(Pure C / Static Memory)"]
             CONF["ConfigStore & LocalAuth"]
         end
         subgraph ESP ["ESP32-C6 (Gateway Bridge)"]
-            TUNNEL["SPI DMA Tunnel\n(10 MHz / CRC-8)"]
-            WSS["WSS Client\n(mbedTLS WebSocket)"]
+            TUNNEL["SPI DMA Tunnel
+(10 MHz / CRC-8)"]
+            WSS["WSS Client
+(mbedTLS WebSocket)"]
         end
     end
 
-    subgraph CLOUD ["Há»† THá»NG MÃY CHá»¦ CSMS (GO BACKEND)"]
-        GW["ocpp-gateway\n(Port WSS 9000)"]
-        VAL["Validation Engine\n(RFC3339 & OCA Schema)"]
-        STREAM["Redis Streams\nocpp.inbound"]
-        WORKER["Worker Service\n(Billing, State, DB)"]
-        PG[("PostgreSQL\nTimescaleDB")]
+    subgraph CLOUD ["HỆ THỐNG MÁY CHỦ CSMS (GO BACKEND)"]
+        GW["ocpp-gateway
+(Port WSS 9000)"]
+        VAL["Validation Engine
+(RFC3339 & OCA Schema)"]
+        STREAM["Redis Streams
+ocpp.inbound"]
+        WORKER["Worker Service
+(Billing, State, DB)"]
+        PG[("PostgreSQL
+TimescaleDB")]
     end
 
     MINI <-->|"SPI DMA Frame"| TUNNEL
@@ -74,22 +82,22 @@ flowchart LR
     VAL --> STREAM
     STREAM --> WORKER
     WORKER --> PG
-`
+```
 
-- **Táº§ng Firmware (STM32F429ZIT6)**: Cháº¡y thÆ° viá»‡n MiniOCPP thuáº§n C khÃ´ng cáº¥p phÃ¡t Ä‘á»™ng (malloc), quáº£n lÃ½ phiÃªn sáº¡c, Ä‘á»“ng há»“ nÄƒng lÆ°á»£ng Wh, mÃ£ tháº» RFID, Ä‘Ã³ng cáº¯t relay cÃ´ng suáº¥t thÃ´ng qua giao tiáº¿p ná»™i bá»™ vá»›i chip an toÃ n STM32H743.
-- **Táº§ng Gateway (ESP32-C6 / ESP32-WROOM-32E)**: ÄÃ³ng vai trÃ² cáº§u ná»‘i truyá»n dáº«n trong suá»‘t (Transparent Socket Bridge). ÄÃ³ng gÃ³i frame SPI DMA tá»« F429 vÃ  truyá»n lÃªn Cloud qua giao thá»©c an toÃ n WebSocket Secure (WSS).
-- **Táº§ng MÃ¡y chá»§ (CSMS Go Backend)**:
-  - Microservice cmd/ocpp-gateway láº¯ng nghe táº¡i cá»•ng 9000, tiáº¿p nháº­n hÃ ng chá»¥c nghÃ¬n káº¿t ná»‘i Ä‘á»“ng thá»i nhá» Goroutine Go siÃªu nháº¹.
-  - Kiá»ƒm tra tÃ­nh há»£p lá»‡ cá»§a schema qua internal/ocpp/validation.go vÃ  Ä‘áº©y sá»± kiá»‡n vÃ o Redis Streams ocpp.inbound.
-  - Microservice worker tiÃªu thá»¥ message, cáº­p nháº­t tráº¡ng thÃ¡i sÃºng sáº¡c, tÃ­nh cÆ°á»›c theo block thá»i gian vÃ  trá»« tiá»n vÃ­ SePay.
+- **Tầng Firmware (STM32F429ZIT6)**: Chạy thư viện `MiniOCPP` thuần C không cấp phát động (`malloc`), quản lý phiên sạc, đồng hồ năng lượng Wh, mã thẻ RFID, đóng cắt relay công suất thông qua giao tiếp nội bộ với chip an toàn STM32H743.
+- **Tầng Gateway (ESP32-C6 / ESP32-WROOM-32E)**: Đóng vai trò cầu nối truyền dẫn trong suốt (Transparent Socket Bridge). Đóng gói frame SPI DMA từ F429 và truyền lên Cloud qua giao thức an toàn WebSocket Secure (WSS).
+- **Tầng Máy chủ (CSMS Go Backend)**:
+  - Microservice `cmd/ocpp-gateway` lắng nghe tại cổng `9000`, tiếp nhận hàng chục nghìn kết nối đồng thời nhờ Goroutine Go siêu nhẹ.
+  - Kiểm tra tính hợp lệ của schema qua `internal/ocpp/validation.go` và đẩy sự kiện vào Redis Streams `ocpp.inbound`.
+  - Microservice `worker` tiêu thụ message, cập nhật trạng thái súng sạc, tính cước theo block thời gian và trừ tiền ví SePay.
 
-### 1.2. CÆ¡ cháº¿ Báº£o máº­t Káº¿t ná»‘i (Security Profiles)
-Theo tÃ i liá»‡u *OCPP 1.6 Security Whitepaper (Edition 3)*:
-- **Security Profile 1 (Unsecured)**: ws:// khÃ´ng mÃ£ hÃ³a (chá»‰ dÃ¹ng trong máº¡ng ná»™i bá»™ test phÃ²ng LAB).
-- **Security Profile 2 (TLS with HTTP Basic Auth - Äang Ã¡p dá»¥ng production)**:
-  - ÄÆ°á»ng truyá»n mÃ£ hÃ³a báº±ng TLS 1.2 / TLS 1.3 (cá»•ng 9000).
-  - XÃ¡c thá»±c tráº¡m sáº¡c báº±ng HTTP Basic Authentication header:
-    `http
+### 1.2. Cơ chế Bảo mật Kết nối (Security Profiles)
+Theo tài liệu *OCPP 1.6 Security Whitepaper (Edition 3)*:
+- **Security Profile 1 (Unsecured)**: `ws://` không mã hóa (chỉ dùng trong mạng nội bộ test phòng LAB).
+- **Security Profile 2 (TLS with HTTP Basic Auth - Đang áp dụng production)**:
+  - Đường truyền mã hóa bằng TLS 1.2 / TLS 1.3 (cổng 9000).
+  - Xác thực trạm sạc bằng HTTP Basic Authentication header:
+    ```http
     GET /ocpp/1.6J/EVSE_BMT_01 HTTP/1.1
     Host: csms.thaco.com:9000
     Upgrade: websocket
@@ -97,68 +105,68 @@ Theo tÃ i liá»‡u *OCPP 1.6 Security Whitepaper (Edition 3)*:
     Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==
     Sec-WebSocket-Protocol: ocpp1.6
     Authorization: Basic RVZTRV9JTVRfMDE6VEhBQ09AQXV0aEtleTIwMjY=
-    `
-    *(Username = chargePointId, Password = uth_key Ä‘Æ°á»£c cáº¥u hÃ¬nh trong Flash/NVS cá»§a tráº¡m).*
-- **Security Profile 3 (TLS with Client-side Certificates - Mutual TLS)**: XÃ¡c thá»±c 2 chiá»u báº±ng chá»©ng chá»‰ sá»‘ X.509 cÃ i Ä‘áº·t trong pháº§n cá»©ng an toÃ n (Secure Element ATECC608A).
+    ```
+    *(Username = `chargePointId`, Password = `auth_key` được cấu hình trong Flash/NVS của trạm).*
+- **Security Profile 3 (TLS with Client-side Certificates - Mutual TLS)**: Xác thực 2 chiều bằng chứng chỉ số X.509 cài đặt trong phần cứng an toàn (Secure Element ATECC608A).
 
 ---
 
-## 2. Cáº¤U TRÃšC KHUNG Báº¢N TIN JSON-RPC 2.0
+## 2. CẤU TRÚC KHUNG BẢN TIN JSON-RPC 2.0
 
-Má»i báº£n tin trao Ä‘á»•i qua WebSocket Ä‘á»u Ä‘Æ°á»£c Ä‘Ã³ng gÃ³i dÆ°á»›i dáº¡ng máº£ng JSON (Array) vá»›i kÃ­ch thÆ°á»›c vÃ  cáº¥u trÃºc quy chuáº©n:
+Mọi bản tin trao đổi qua WebSocket đều được đóng gói dưới dạng mảng JSON (Array) với kích thước và cấu trúc quy chuẩn:
 
-### 2.1. GÃ³i tin YÃªu cáº§u (CALL - Message Type 2)
-Gá»­i Ä‘i tá»« má»™t phÃ­a Ä‘á»ƒ yÃªu cáº§u phÃ­a bÃªn kia thá»±c hiá»‡n tÃ¡c vá»¥:
-`json
+### 2.1. Gói tin Yêu cầu (CALL - Message Type 2)
+Gửi đi từ một phía để yêu cầu phía bên kia thực hiện tác vụ:
+```json
 [2, "<UniqueId>", "<Action>", { <Payload> }]
-`
-- 2 (Number): Äá»‹nh danh kiá»ƒu tin CALL.
-- <UniqueId> (String, tá»‘i Ä‘a 36 kÃ½ tá»±): Chuá»—i Ä‘á»‹nh danh duy nháº¥t (UUIDv4 hoáº·c Epoch millisecond) dÃ¹ng Ä‘á»ƒ khá»›p báº£n tin pháº£n há»“i tÆ°Æ¡ng á»©ng.
-- <Action> (String): TÃªn tÃ¡c vá»¥ OCPP (vÃ­ dá»¥: BootNotification, StartTransaction, RemoteStopTransaction).
-- <Payload> (Object): Dá»¯ liá»‡u chi tiáº¿t cá»§a tÃ¡c vá»¥.
+```
+- `2` (Number): Định danh kiểu tin CALL.
+- `<UniqueId>` (String, tối đa 36 ký tự): Chuỗi định danh duy nhất (UUIDv4 hoặc Epoch millisecond) dùng để khớp bản tin phản hồi tương ứng.
+- `<Action>` (String): Tên tác vụ OCPP (ví dụ: `BootNotification`, `StartTransaction`, `RemoteStopTransaction`).
+- `<Payload>` (Object): Dữ liệu chi tiết của tác vụ.
 
-### 2.2. GÃ³i tin Pháº£n há»“i ThÃ nh cÃ´ng (CALLRESULT - Message Type 3)
-BÃªn nháº­n gá»­i tráº£ láº¡i cho phÃ­a gá»­i yÃªu cáº§u khi tÃ¡c vá»¥ Ä‘Æ°á»£c cháº¥p thuáº­n hoáº·c hoÃ n thÃ nh:
-`json
+### 2.2. Gói tin Phản hồi Thành công (CALLRESULT - Message Type 3)
+Bên nhận gửi trả lại cho phía gửi yêu cầu khi tác vụ được chấp thuận hoặc hoàn thành:
+```json
 [3, "<UniqueId>", { <Payload> }]
-`
-- 3 (Number): Äá»‹nh danh kiá»ƒu tin CALLRESULT.
-- <UniqueId>: Khá»›p chÃ­nh xÃ¡c vá»›i <UniqueId> cá»§a gÃ³i CALL trÆ°á»›c Ä‘Ã³.
-- <Payload>: Dá»¯ liá»‡u pháº£n há»“i (chá»©a káº¿t quáº£, tráº¡ng thÃ¡i Accepted, Rejected, hoáº·c dá»¯ liá»‡u Ä‘o Ä‘áº¿m).
+```
+- `3` (Number): Định danh kiểu tin CALLRESULT.
+- `<UniqueId>`: Khớp chính xác với `<UniqueId>` của gói CALL trước đó.
+- `<Payload>`: Dữ liệu phản hồi (chứa kết quả, trạng thái `Accepted`, `Rejected`, hoặc dữ liệu đo đếm).
 
-### 2.3. GÃ³i tin BÃ¡o lá»—i Giao thá»©c (CALLERROR - Message Type 4)
-Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sai kiá»ƒu dá»¯ liá»‡u hoáº·c khÃ´ng Ä‘Æ°á»£c há»— trá»£:
-`json
+### 2.3. Gói tin Báo lỗi Giao thức (CALLERROR - Message Type 4)
+Gửi trả lại khi gói tin CALL gửi sai cấu trúc, sai kiểu dữ liệu hoặc không được hỗ trợ:
+```json
 [4, "<UniqueId>", "<ErrorCode>", "<ErrorDescription>", { <ErrorDetails> }]
-`
-- 4 (Number): Äá»‹nh danh kiá»ƒu tin CALLERROR.
-- <ErrorCode>: MÃ£ lá»—i chuáº©n OCPP 1.6 (xem báº£ng bÃªn dÆ°á»›i).
-- <ErrorDescription>: MÃ´ táº£ chi tiáº¿t nguyÃªn nhÃ¢n lá»—i (tá»‘i Ä‘a 255 kÃ½ tá»±).
-- <ErrorDetails>: JSON Object má»Ÿ rá»™ng (náº¿u cÃ³, thÆ°á»ng Ä‘á»ƒ {}).
+```
+- `4` (Number): Định danh kiểu tin CALLERROR.
+- `<ErrorCode>`: Mã lỗi chuẩn OCPP 1.6 (xem bảng bên dưới).
+- `<ErrorDescription>`: Mô tả chi tiết nguyên nhân lỗi (tối đa 255 ký tự).
+- `<ErrorDetails>`: JSON Object mở rộng (nếu có, thường để `{}`).
 
-#### Báº£ng Danh má»¥c MÃ£ lá»—i Chuáº©n OCPP (ErrorCode):
-| MÃ£ Lá»—i (ErrorCode) | Ã NghÄ©a / TÃ¬nh Huá»‘ng KÃ­ch Hoáº¡t |
+#### Bảng Danh mục Mã lỗi Chuẩn OCPP (ErrorCode):
+| Mã Lỗi (ErrorCode) | Ý Nghĩa / Tình Huống Kích Hoạt |
 | :--- | :--- |
-| NotImplemented | TÃ¡c vá»¥ khÃ´ng Ä‘Æ°á»£c triá»ƒn khai trÃªn thiáº¿t bá»‹ hoáº·c há»‡ thá»‘ng. |
-| NotSupported | TÃ¡c vá»¥ Ä‘Æ°á»£c nháº­n dáº¡ng nhÆ°ng khÃ´ng Ä‘Æ°á»£c thiáº¿t bá»‹ há»— trá»£ á»Ÿ cháº¿ Ä‘á»™ hiá»‡n táº¡i. |
-| InternalError | Lá»—i ná»™i bá»™ khÃ´ng xÃ¡c Ä‘á»‹nh (vÃ­ dá»¥: lá»—i Ä‘á»c Flash, lá»—i bá»™ nhá»›). |
-| ProtocolError | Lá»—i luá»“ng giao tiáº¿p (vÃ­ dá»¥: gá»­i StopTransaction khi chÆ°a cÃ³ StartTransaction). |
-| SecurityError | Lá»—i xÃ¡c thá»±c, sai máº­t kháº©u AuthKey hoáº·c token bá»‹ thu há»“i. |
-| FormationViolation | CÃº phÃ¡p JSON bá»‹ há»ng, thiáº¿u ngoáº·c hoáº·c sai Ä‘á»‹nh dáº¡ng máº£ng. |
-| PropertyConstraintViolation | Dá»¯ liá»‡u vÆ°á»£t quÃ¡ giá»›i háº¡n Ä‘á»™ dÃ i hoáº·c náº±m ngoÃ i dáº£i giÃ¡ trá»‹ cho phÃ©p. |
-| OccurrenceConstraintViolation | Thiáº¿u trÆ°á»ng báº¯t buá»™c hoáº·c xuáº¥t hiá»‡n trÆ°á»ng khÃ´ng mong muá»‘n. |
-| TypeConstraintViolation | Sai kiá»ƒu dá»¯ liá»‡u (vÃ­ dá»¥: gá»­i chuá»—i string vÃ o trÆ°á»ng sá»‘ integer). |
+| `NotImplemented` | Tác vụ không được triển khai trên thiết bị hoặc hệ thống. |
+| `NotSupported` | Tác vụ được nhận dạng nhưng không được thiết bị hỗ trợ ở chế độ hiện tại. |
+| `InternalError` | Lỗi nội bộ không xác định (ví dụ: lỗi đọc Flash, lỗi bộ nhớ). |
+| `ProtocolError` | Lỗi luồng giao tiếp (ví dụ: gửi `StopTransaction` khi chưa có `StartTransaction`). |
+| `SecurityError` | Lỗi xác thực, sai mật khẩu AuthKey hoặc token bị thu hồi. |
+| `FormationViolation` | Cú pháp JSON bị hỏng, thiếu ngoặc hoặc sai định dạng mảng. |
+| `PropertyConstraintViolation` | Dữ liệu vượt quá giới hạn độ dài hoặc nằm ngoài dải giá trị cho phép. |
+| `OccurrenceConstraintViolation` | Thiếu trường bắt buộc hoặc xuất hiện trường không mong muốn. |
+| `TypeConstraintViolation` | Sai kiểu dữ liệu (ví dụ: gửi chuỗi string vào trường số integer). |
 
 ---
 
-## 3. DANH Má»¤C Báº¢N TIN CHIá»€U TRáº M Sáº C Gá»¬I MÃY CHá»¦ (CLIENT -> CSMS)
+## 3. DANH MỤC BẢN TIN CHIỀU TRẠM SẠC GỬI MÁY CHỦ (CLIENT -> CSMS)
 
 ### 3.1. BootNotification
-- **Thá»i Ä‘iá»ƒm gá»­i**: Ngay sau khi vi Ä‘iá»u khiá»ƒn F429 khá»Ÿi Ä‘á»™ng thÃ nh cÃ´ng vÃ  ESP32 thiáº¿t láº­p káº¿t ná»‘i WSS tá»›i CSMS.
-- **Má»¥c Ä‘Ã­ch**: Khai bÃ¡o danh tÃ­nh tráº¡m, nhÃ  sáº£n xuáº¥t, model pháº§n cá»©ng, sá»‘ serial vÃ  phiÃªn báº£n firmware hiá»‡n hÃ nh.
+- **Thời điểm gửi**: Ngay sau khi vi điều khiển F429 khởi động thành công và ESP32 thiết lập kết nối WSS tới CSMS.
+- **Mục đích**: Khai báo danh tính trạm, nhà sản xuất, model phần cứng, số serial và phiên bản firmware hiện hành.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-boot-001",
@@ -170,10 +178,10 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "firmwareVersion": "v1.0.4-prod-20260918"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-boot-001",
@@ -183,27 +191,27 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "interval": 60
   }
 ]
-`
-*(Ghi chÃº: currentTime Ä‘Æ°á»£c tráº¡m dÃ¹ng Ä‘á»ƒ Ä‘á»“ng bá»™ RTC cá»§a STM32; interval = 60 cáº¥u hÃ¬nh chu ká»³ gá»­i Heartbeat Ä‘á»‹nh ká»³ 60 giÃ¢y).*
+```
+*(Ghi chú: `currentTime` được trạm dùng để đồng bộ RTC của STM32; `interval = 60` cấu hình chu kỳ gửi Heartbeat định kỳ 60 giây).*
 
 ---
 
 ### 3.2. Heartbeat
-- **Thá»i Ä‘iá»ƒm gá»­i**: Äá»‹nh ká»³ theo chu ká»³ HeartbeatInterval (máº·c Ä‘á»‹nh 60 giÃ¢y) khi tráº¡m á»Ÿ tráº¡ng thÃ¡i rá»—i hoáº·c khÃ´ng cÃ³ giao dá»‹ch.
-- **Má»¥c Ä‘Ã­ch**: Duy trÃ¬ káº¿t ná»‘i TCP/WebSocket (Keep-Alive) vÃ  Ä‘á»“ng bá»™ Ä‘á»“ng há»“ tráº¡m.
+- **Thời điểm gửi**: Định kỳ theo chu kỳ `HeartbeatInterval` (mặc định 60 giây) khi trạm ở trạng thái rỗi hoặc không có giao dịch.
+- **Mục đích**: Duy trì kết nối TCP/WebSocket (Keep-Alive) và đồng bộ đồng hồ trạm.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-hb-102938",
   "Heartbeat",
   {}
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-hb-102938",
@@ -211,16 +219,16 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "currentTime": "2026-09-18T12:36:00.005Z"
   }
 ]
-`
+```
 
 ---
 
 ### 3.3. StatusNotification
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi cÃ³ báº¥t ká»³ thay Ä‘á»•i nÃ o vá» tráº¡ng thÃ¡i váº­t lÃ½ cá»§a sÃºng sáº¡c (cáº¯m sÃºng, rÃºt sÃºng, báº¯t Ä‘áº§u náº¡p Ä‘iá»‡n, bÃ¡o lá»—i cháº¡m Ä‘áº¥t, ngáº¯t kháº©n cáº¥p E-Stop).
-- **ConnectorId**:   (ToÃ n tráº¡m), 1 (SÃºng sáº¡c DC SÃºng 1), 2 (SÃºng sáº¡c DC SÃºng 2).
+- **Thời điểm gửi**: Khi có bất kỳ thay đổi nào về trạng thái vật lý của súng sạc (cắm súng, rút súng, bắt đầu nạp điện, báo lỗi chạm đất, ngắt khẩn cấp E-Stop).
+- **ConnectorId**: `0` (Toàn trạm), `1` (Súng sạc DC Súng 1), `2` (Súng sạc DC Súng 2).
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-stat-7812",
@@ -232,36 +240,36 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "timestamp": "2026-09-18T12:36:15.890Z"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-stat-7812",
   {}
 ]
-`
+```
 
-#### Ma tráº­n Tráº¡ng thÃ¡i Connector (Status Enum):
-- Available: SÃºng sáº¡c ráº£nh, sáºµn sÃ ng Ä‘Ã³n xe.
-- Preparing: ÄÃ£ cáº¯m sÃºng vÃ o xe (CP state B/C), Ä‘ang chá» xÃ¡c thá»±c tháº» hoáº·c báº¥m sáº¡c trÃªn App.
-- Charging: RÆ¡-le cÃ´ng suáº¥t DC Ä‘Ã£ Ä‘Ã³ng, dÃ²ng sáº¡c Ä‘ang cháº¡y vÃ o xe.
-- SuspendedEV: Xe chá»§ Ä‘á»™ng táº¡m ngÆ°ng dÃ²ng sáº¡c (pin Ä‘áº§y hoáº·c BMS cÃ¢n báº±ng cell).
-- SuspendedEVSE: Tráº¡m táº¡m ngÆ°ng cáº¥p Ä‘iá»‡n (quáº£n lÃ½ phá»¥ táº£i hoáº·c quÃ¡ nhiá»‡t táº¡m thá»i).
-- Finishing: PhiÃªn sáº¡c hoÃ n táº¥t, rÆ¡-le Ä‘Ã£ ngáº¯t, Ä‘ang chá» ngÆ°á»i dÃ¹ng rÃºt sÃºng khá»i xe.
-- Reserved: SÃºng Ä‘ang Ä‘Æ°á»£c Ä‘áº·t trÆ°á»›c bá»Ÿi má»™t tÃ i xáº¿ khÃ¡c.
-- Unavailable: SÃºng bá»‹ vÃ´ hiá»‡u hÃ³a cá»¥c bá»™ hoáº·c qua lá»‡nh mÃ¡y chá»§.
-- Faulted: Tráº¡m gáº·p sá»± cá»‘ pháº§n cá»©ng hoáº·c an toÃ n Ä‘iá»‡n.
+#### Ma trận Trạng thái Connector (Status Enum):
+- `Available`: Súng sạc rảnh, sẵn sàng đón xe.
+- `Preparing`: Đã cắm súng vào xe (CP state B/C), đang chờ xác thực thẻ hoặc bấm sạc trên App.
+- `Charging`: Rơ-le công suất DC đã đóng, dòng sạc đang chạy vào xe.
+- `SuspendedEV`: Xe chủ động tạm ngưng dòng sạc (pin đầy hoặc BMS cân bằng cell).
+- `SuspendedEVSE`: Trạm tạm ngưng cấp điện (quản lý phụ tải hoặc quá nhiệt tạm thời).
+- `Finishing`: Phiên sạc hoàn tất, rơ-le đã ngắt, đang chờ người dùng rút súng khỏi xe.
+- `Reserved`: Súng đang được đặt trước bởi một tài xế khác.
+- `Unavailable`: Súng bị vô hiệu hóa cục bộ hoặc qua lệnh máy chủ.
+- `Faulted`: Trạm gặp sự cố phần cứng hoặc an toàn điện.
 
 ---
 
 ### 3.4. Authorize
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi ngÆ°á»i dÃ¹ng quáº¹t tháº» RFID (MIFARE 13.56MHz) lÃªn Ä‘áº§u Ä‘á»c tháº» cá»§a tráº¡m.
-- **Má»¥c Ä‘Ã­ch**: Há»i CSMS xem mÃ£ tháº» idTag cÃ³ há»£p lá»‡, Ä‘á»§ sá»‘ dÆ° vÃ  Ä‘Æ°á»£c phÃ©p sáº¡c khÃ´ng.
+- **Thời điểm gửi**: Khi người dùng quẹt thẻ RFID (MIFARE 13.56MHz) lên đầu đọc thẻ của trạm.
+- **Mục đích**: Hỏi CSMS xem mã thẻ `idTag` có hợp lệ, đủ số dư và được phép sạc không.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-auth-4412",
@@ -270,10 +278,10 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "idTag": "RFID-E4F290A1"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m - Cháº¥p thuáº­n):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm - Chấp thuận):**
+```json
 [
   3,
   "msg-auth-4412",
@@ -285,10 +293,10 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     }
   }
 ]
-`
+```
 
-**TrÆ°á»ng há»£p Tháº» Bá»‹ Tá»« chá»‘i (Bá»‹ khÃ³a hoáº·c Háº¿t háº¡n):**
-`json
+**Trường hợp Thẻ Bị Từ chối (Bị khóa hoặc Hết hạn):**
+```json
 [
   3,
   "msg-auth-4412",
@@ -298,16 +306,16 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     }
   }
 ]
-`
+```
 
 ---
 
 ### 3.5. StartTransaction
-- **Thá»i Ä‘iá»ƒm gá»­i**: Sau khi xÃ¡c thá»±c thÃ nh cÃ´ng, sÃºng Ä‘Ã£ khÃ³a ngÃ m an toÃ n, tráº¡m kiá»ƒm tra cÃ¡ch Ä‘iá»‡n (Insulation Test) thÃ nh cÃ´ng vÃ  sáºµn sÃ ng phÃ¡t dÃ²ng sáº¡c.
-- **Má»¥c Ä‘Ã­ch**: Báº¯t Ä‘áº§u tÃ­nh tiá»n cho phiÃªn sáº¡c.
+- **Thời điểm gửi**: Sau khi xác thực thành công, súng đã khóa ngàm an toàn, trạm kiểm tra cách điện (Insulation Test) thành công và sẵn sàng phát dòng sạc.
+- **Mục đích**: Bắt đầu tính tiền cho phiên sạc.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-txstart-9921",
@@ -319,11 +327,11 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "timestamp": "2026-09-18T12:37:00.000Z"
   }
 ]
-`
-*(Ghi chÃº: meterStart = 145020 biá»ƒu thá»‹ sá»‘ cÃ´ng tÆ¡ Ä‘iá»‡n ban Ä‘áº§u lÃ  145.020 kWh).*
+```
+*(Ghi chú: `meterStart = 145020` biểu thị số công tơ điện ban đầu là 145.020 kWh).*
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-txstart-9921",
@@ -334,17 +342,17 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     }
   }
 ]
-`
-*(Tráº¡m lÆ°u 	ransactionId = 84920 vÃ o bá»™ nhá»› Ä‘á»ƒ gáº¯n vÃ o táº¥t cáº£ cÃ¡c gÃ³i MeterValues vÃ  StopTransaction).*
+```
+*(Trạm lưu `transactionId = 84920` vào bộ nhớ để gắn vào tất cả các gói `MeterValues` và `StopTransaction`).*
 
 ---
 
 ### 3.6. MeterValues
-- **Thá»i Ä‘iá»ƒm gá»­i**: Äá»‹nh ká»³ trong suá»‘t quÃ¡ trÃ¬nh sáº¡c (má»—i 10 giÃ¢y theo cáº¥u hÃ¬nh MeterValueSampleInterval).
-- **Má»¥c Ä‘Ã­ch**: BÃ¡o cÃ¡o cÃ¡c thÃ´ng sá»‘ Ä‘o Ä‘áº¿m thá»±c táº¿ (SoC %, V, A, kW, kWh) Ä‘á»ƒ hiá»ƒn thá»‹ lÃªn App vÃ  tÃ­nh cÆ°á»›c theo thá»i gian thá»±c.
+- **Thời điểm gửi**: Định kỳ trong suốt quá trình sạc (mỗi 10 giây theo cấu hình `MeterValueSampleInterval`).
+- **Mục đích**: Báo cáo các thông số đo đếm thực tế (SoC %, V, A, kW, kWh) để hiển thị lên App và tính cước theo thời gian thực.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-meter-5561",
@@ -386,25 +394,25 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     ]
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-meter-5561",
   {}
 ]
-`
+```
 
 ---
 
 ### 3.7. StopTransaction
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi phiÃªn sáº¡c dá»«ng láº¡i (do ngÆ°á»i dÃ¹ng quáº¹t tháº» dá»«ng, báº¥m nÃºt trÃªn mÃ n hÃ¬nh HMI, báº¥m dá»«ng trÃªn Mobile App, xe bÃ¡o Ä‘áº§y 100% pin, hoáº·c sá»± cá»‘ E-Stop).
-- **Má»¥c Ä‘Ã­ch**: Chá»‘t sá»‘ Ä‘iá»‡n tiÃªu thá»¥, thá»i gian sáº¡c Ä‘á»ƒ CSMS thá»±c hiá»‡n quyáº¿t toÃ¡n hÃ³a Ä‘Æ¡n.
+- **Thời điểm gửi**: Khi phiên sạc dừng lại (do người dùng quẹt thẻ dừng, bấm nút trên màn hình HMI, bấm dừng trên Mobile App, xe báo đầy 100% pin, hoặc sự cố E-Stop).
+- **Mục đích**: Chốt số điện tiêu thụ, thời gian sạc để CSMS thực hiện quyết toán hóa đơn.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-txstop-8831",
@@ -416,11 +424,11 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     "reason": "Local"
   }
 ]
-`
-*(Sá»‘ Ä‘iá»‡n tiÃªu thá»¥ thá»±c táº¿ = 182450 - 145020 = 37430 Wh = 37.43 kWh).*
+```
+*(Số điện tiêu thụ thực tế = `182450 - 145020 = 37430 Wh = 37.43 kWh`).*
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-txstop-8831",
@@ -430,19 +438,19 @@ Gá»­i tráº£ láº¡i khi gÃ³i tin CALL gá»­i sai cáº¥u trÃºc, sa
     }
   }
 ]
-`
+```
 
-#### CÃ¡c LÃ½ do Dá»«ng sáº¡c (StopReason Enum):
-Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra lá»‡nh dá»«ng), EVDisconnected (RÃºt sÃºng), EmergencyStop (NÃºt kháº©n cáº¥p), PowerLoss (Máº¥t Ä‘iá»‡n lÆ°á»›i), Reboot (Khá»Ÿi Ä‘á»™ng láº¡i), UnlockCommand (Lá»‡nh má»Ÿ khÃ³a ngÃ m).
+#### Các Lý do Dừng sạc (StopReason Enum):
+`Local` (Người dùng bấm HMI / quẹt thẻ), `Remote` (CSMS ra lệnh dừng), `EVDisconnected` (Rút súng), `EmergencyStop` (Nút khẩn cấp), `PowerLoss` (Mất điện lưới), `Reboot` (Khởi động lại), `UnlockCommand` (Lệnh mở khóa ngàm).
 
 ---
 
 ### 3.8. DataTransfer (Vehicle Identity)
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi chip STM32H743 giao tiáº¿p thÃ nh cÃ´ng vá»›i ECU xe qua CAN bus / SECC vÃ  Ä‘á»c Ä‘Æ°á»£c cÃ¡c Ä‘á»‹nh danh sá»‘ cá»§a xe.
-- **Má»¥c Ä‘Ã­ch**: Chuyá»ƒn tiáº¿p Ä‘á»‹nh danh xe (VIN, EVCC-ID, EMAID) lÃªn CSMS phá»¥c vá»¥ quáº£n lÃ½ Ä‘á»™i xe doanh nghiá»‡p hoáº·c nháº­n diá»‡n xe tá»± Ä‘á»™ng.
+- **Thời điểm gửi**: Khi chip STM32H743 giao tiếp thành công với ECU xe qua CAN bus / SECC và đọc được các định danh số của xe.
+- **Mục đích**: Chuyển tiếp định danh xe (VIN, EVCC-ID, EMAID) lên CSMS phục vụ quản lý đội xe doanh nghiệp hoặc nhận diện xe tự động.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-dt-1102",
@@ -453,10 +461,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "data": "{\"vin\":\"VF8A1928490128\",\"evccId\":\"02:00:00:FF:FE:12:34:56\",\"emaid\":\"VN-THA-C1234567-8\"}"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALLRESULT [3] (CSMS -> Trạm):**
+```json
 [
   3,
   "msg-dt-1102",
@@ -465,15 +473,15 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "data": "Vehicle verified"
   }
 ]
-`
+```
 
 ---
 
 ### 3.9. DiagnosticsStatusNotification
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi tráº¡m Ä‘ang trong quÃ¡ trÃ¬nh trÃ­ch xuáº¥t vÃ  táº£i nháº­t kÃ½ lá»—i há»‡ thá»‘ng (Diagnostics Log) lÃªn mÃ¡y chá»§ qua HTTP/FTP.
+- **Thời điểm gửi**: Khi trạm đang trong quá trình trích xuất và tải nhật ký lỗi hệ thống (Diagnostics Log) lên máy chủ qua HTTP/FTP.
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-diag-991",
@@ -482,16 +490,16 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Uploading"
   }
 ]
-`
-*(Status bao gá»“m: Idle, Uploaded, UploadFailed, Uploading).*
+```
+*(Status bao gồm: `Idle`, `Uploaded`, `UploadFailed`, `Uploading`).*
 
 ---
 
 ### 3.10. FirmwareStatusNotification
-- **Thá»i Ä‘iá»ƒm gá»­i**: BÃ¡o cÃ¡o tiáº¿n Ä‘á»™ cá»§a quÃ¡ trÃ¬nh cáº­p nháº­t pháº§n má»m tráº¡m sáº¡c tá»« xa (OTA).
+- **Thời điểm gửi**: Báo cáo tiến độ của quá trình cập nhật phần mềm trạm sạc từ xa (OTA).
 
-**GÃ³i tin CALL [2] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALL [2] (Trạm -> CSMS):**
+```json
 [
   2,
   "msg-fw-772",
@@ -500,19 +508,19 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Installing"
   }
 ]
-`
-*(Status bao gá»“m: Downloaded, DownloadFailed, Downloading, Idle, InstallationFailed, Installing, Installed).*
+```
+*(Status bao gồm: `Downloaded`, `DownloadFailed`, `Downloading`, `Idle`, `InstallationFailed`, `Installing`, `Installed`).*
 
 ---
 
-## 4. DANH Má»¤C Báº¢N TIN CHIá»€U MÃY CHá»¦ Gá»¬I TRáº M Sáº C (CSMS -> CLIENT)
+## 4. DANH MỤC BẢN TIN CHIỀU MÁY CHỦ GỬI TRẠM SẠC (CSMS -> CLIENT)
 
 ### 4.1. RemoteStartTransaction
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi tÃ i xáº¿ quÃ©t mÃ£ QR trÃªn trá»¥ sáº¡c vÃ  nháº¥n "Báº¯t Ä‘áº§u sáº¡c" trÃªn á»©ng dá»¥ng THACO Charge Mobile App.
-- **Má»¥c Ä‘Ã­ch**: Ra lá»‡nh cho tráº¡m sáº¡c kÃ­ch hoáº¡t sÃºng sáº¡c Ä‘Æ°á»£c chá»‰ Ä‘á»‹nh.
+- **Thời điểm gửi**: Khi tài xế quét mã QR trên trụ sạc và nhấn "Bắt đầu sạc" trên ứng dụng THACO Charge Mobile App.
+- **Mục đích**: Ra lệnh cho trạm sạc kích hoạt súng sạc được chỉ định.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-remstart-101",
@@ -537,10 +545,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     }
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-remstart-101",
@@ -548,16 +556,16 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
-*(Náº¿u sÃºng Ä‘ang bá»‹ báº­n hoáº·c chÆ°a cáº¯m vÃ o xe, tráº¡m sáº½ pháº£n há»“i status: "Rejected").*
+```
+*(Nếu súng đang bị bận hoặc chưa cắm vào xe, trạm sẽ phản hồi `status: "Rejected"`).*
 
 ---
 
 ### 4.2. RemoteStopTransaction
-- **Thá»i Ä‘iá»ƒm gá»­i**: Khi tÃ i xáº¿ báº¥m nÃºt "Dá»«ng sáº¡c" trÃªn Mobile App hoáº·c Quáº£n trá»‹ viÃªn CSMS ngáº¯t sáº¡c kháº©n cáº¥p tá»« trang Web Admin.
+- **Thời điểm gửi**: Khi tài xế bấm nút "Dừng sạc" trên Mobile App hoặc Quản trị viên CSMS ngắt sạc khẩn cấp từ trang Web Admin.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-remstop-102",
@@ -566,10 +574,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "transactionId": 84920
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-remstop-102",
@@ -577,18 +585,18 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
 ---
 
 ### 4.3. Reset
-- **Thá»i Ä‘iá»ƒm gá»­i**: Quáº£n trá»‹ viÃªn muá»‘n khá»Ÿi Ä‘á»™ng láº¡i tráº¡m sáº¡c tá»« xa.
-- **PhÃ¢n loáº¡i**:
-  - Soft: Khá»Ÿi Ä‘á»™ng láº¡i pháº§n má»m MiniOCPP vÃ  cÃ¡c FreeRTOS Task mÃ  khÃ´ng ngáº¯t relay cÃ´ng suáº¥t náº¿u xe Ä‘ang sáº¡c.
-  - Hard: KÃ­ch hoáº¡t Watchdog Timer / ngáº¯t nguá»“n tráº¡m Ä‘á»ƒ Reset toÃ n bá»™ vi Ä‘iá»u khiá»ƒn (STM32F4, STM32H7, ESP32).
+- **Thời điểm gửi**: Quản trị viên muốn khởi động lại trạm sạc từ xa.
+- **Phân loại**:
+  - `Soft`: Khởi động lại phần mềm MiniOCPP và các FreeRTOS Task mà không ngắt relay công suất nếu xe đang sạc.
+  - `Hard`: Kích hoạt Watchdog Timer / ngắt nguồn trạm để Reset toàn bộ vi điều khiển (STM32F4, STM32H7, ESP32).
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-reset-103",
@@ -597,10 +605,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "type": "Soft"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-reset-103",
@@ -608,15 +616,15 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
 ---
 
 ### 4.4. UnlockConnector
-- **Thá»i Ä‘iá»ƒm gá»­i**: Kháº¯c phá»¥c sá»± cá»‘ sÃºng sáº¡c bá»‹ káº¹t chá»‘t cÆ¡ khÃ­ trÃªn cá»•ng sáº¡c cá»§a xe sau khi phiÃªn sáº¡c Ä‘Ã£ káº¿t thÃºc.
+- **Thời điểm gửi**: Khắc phục sự cố súng sạc bị kẹt chốt cơ khí trên cổng sạc của xe sau khi phiên sạc đã kết thúc.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-unlock-104",
@@ -625,10 +633,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "connectorId": 1
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-unlock-104",
@@ -636,17 +644,17 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Unlocked"
   }
 ]
-`
-*(Náº¿u cÆ¡ cáº¥u mÃ´ tÆ¡ chá»‘t sÃºng bá»‹ káº¹t cÆ¡ há»c, tráº¡m sáº½ pháº£n há»“i status: "UnlockFailed").*
+```
+*(Nếu cơ cấu mô tơ chốt súng bị kẹt cơ học, trạm sẽ phản hồi `status: "UnlockFailed"`).*
 
 ---
 
 ### 4.5. ChangeAvailability
-- **Thá»i Ä‘iá»ƒm gá»­i**: KhÃ³a hoáº·c má»Ÿ sÃºng sáº¡c phá»¥c vá»¥ cÃ´ng tÃ¡c báº£o trÃ¬ ká»¹ thuáº­t.
-- **Type**: Inoperative (Ngá»«ng phá»¥c vá»¥), Operative (Má»Ÿ láº¡i bÃ¬nh thÆ°á»ng).
+- **Thời điểm gửi**: Khóa hoặc mở súng sạc phục vụ công tác bảo trì kỹ thuật.
+- **Type**: `Inoperative` (Ngừng phục vụ), `Operative` (Mở lại bình thường).
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-avail-105",
@@ -656,10 +664,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "type": "Inoperative"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-avail-105",
@@ -667,16 +675,16 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
-*(Náº¿u xe Ä‘ang sáº¡c dá»Ÿ, tráº¡m pháº£n há»“i status: "Scheduled" Ä‘á»ƒ chuyá»ƒn sang Inoperative ngay sau khi phiÃªn sáº¡c káº¿t thÃºc).*
+```
+*(Nếu xe đang sạc dở, trạm phản hồi `status: "Scheduled"` để chuyển sang Inoperative ngay sau khi phiên sạc kết thúc).*
 
 ---
 
 ### 4.6. ChangeConfiguration
-- **Thá»i Ä‘iá»ƒm gá»­i**: Cáº¥u hÃ¬nh láº¡i cÃ¡c thÃ´ng sá»‘ hoáº¡t Ä‘á»™ng cá»§a tráº¡m tá»« Cloud (chu ká»³ Ä‘o, thá»i gian timeout, v.v.).
+- **Thời điểm gửi**: Cấu hình lại các thông số hoạt động của trạm từ Cloud (chu kỳ đo, thời gian timeout, v.v.).
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-cfg-106",
@@ -686,10 +694,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "value": "15"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-cfg-106",
@@ -697,16 +705,16 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
-*(CÃ¡c tráº¡ng thÃ¡i pháº£n há»“i khÃ¡c: Rejected náº¿u sai giÃ¡ trá»‹, RebootRequired náº¿u cáº§n khá»Ÿi Ä‘á»™ng láº¡i má»›i cÃ³ tÃ¡c dá»¥ng, NotSupported náº¿u key khÃ´ng tá»“n táº¡i).*
+```
+*(Các trạng thái phản hồi khác: `Rejected` nếu sai giá trị, `RebootRequired` nếu cần khởi động lại mới có tác dụng, `NotSupported` nếu key không tồn tại).*
 
 ---
 
 ### 4.7. GetConfiguration
-- **Thá»i Ä‘iá»ƒm gá»­i**: CSMS Ä‘á»c giÃ¡ trá»‹ hiá»‡n hÃ nh cá»§a má»™t hoáº·c toÃ n bá»™ tham sá»‘ tráº¡m sáº¡c.
+- **Thời điểm gửi**: CSMS đọc giá trị hiện hành của một hoặc toàn bộ tham số trạm sạc.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-getcfg-107",
@@ -719,10 +727,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     ]
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-getcfg-107",
@@ -747,16 +755,16 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "unknownKey": []
   }
 ]
-`
+```
 
 ---
 
 ### 4.8. TriggerMessage
-- **Thá»i Ä‘iá»ƒm gá»­i**: CSMS muá»‘n tráº¡m sáº¡c gá»­i ngay láº­p tá»©c má»™t báº£n tin mÃ  khÃ´ng cáº§n chá» tá»›i chu ká»³ Ä‘á»‹nh ká»³ (phá»¥c vá»¥ Ä‘á»“ng bá»™ tráº¡ng thÃ¡i khi káº¿t ná»‘i láº¡i).
-- **CÃ¡c báº£n tin cÃ³ thá»ƒ kÃ­ch hoáº¡t**: BootNotification, Heartbeat, StatusNotification, MeterValues, DiagnosticsStatusNotification, FirmwareStatusNotification.
+- **Thời điểm gửi**: CSMS muốn trạm sạc gửi ngay lập tức một bản tin mà không cần chờ tới chu kỳ định kỳ (phục vụ đồng bộ trạng thái khi kết nối lại).
+- **Các bản tin có thể kích hoạt**: `BootNotification`, `Heartbeat`, `StatusNotification`, `MeterValues`, `DiagnosticsStatusNotification`, `FirmwareStatusNotification`.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-trig-108",
@@ -766,10 +774,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "connectorId": 1
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-trig-108",
@@ -777,25 +785,25 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
 ---
 
 ### 4.9. ClearCache
-- **Thá»i Ä‘iá»ƒm gá»­i**: XÃ³a toÃ n bá»™ bá»™ nhá»› Ä‘á»‡m xÃ¡c thá»±c RFID táº¡m thá»i trÃªn tráº¡m sáº¡c.
+- **Thời điểm gửi**: Xóa toàn bộ bộ nhớ đệm xác thực RFID tạm thời trên trạm sạc.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm):**
+```json
 [
   2,
   "cmd-cc-109",
   "ClearCache",
   {}
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-cc-109",
@@ -803,15 +811,15 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
 ---
 
 ### 4.10. ReserveNow & CancelReservation
-- **Má»¥c Ä‘Ã­ch**: Cho phÃ©p tÃ i xáº¿ giá»¯ chá»— sÃºng sáº¡c trÆ°á»›c qua Mobile App khi Ä‘ang trÃªn Ä‘Æ°á»ng tá»›i tráº¡m sáº¡c.
+- **Mục đích**: Cho phép tài xế giữ chỗ súng sạc trước qua Mobile App khi đang trên đường tới trạm sạc.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m - ReserveNow):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm - ReserveNow):**
+```json
 [
   2,
   "cmd-res-110",
@@ -823,10 +831,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "reservationId": 1042
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-res-110",
@@ -834,11 +842,11 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
-*(Náº¿u sÃºng Ä‘Ã£ cÃ³ xe khÃ¡c Ä‘ang cáº¯m, tráº¡m pháº£n há»“i status: "Occupied").*
+```
+*(Nếu súng đã có xe khác đang cắm, trạm phản hồi `status: "Occupied"`).*
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m - CancelReservation):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm - CancelReservation):**
+```json
 [
   2,
   "cmd-canres-111",
@@ -847,10 +855,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "reservationId": 1042
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-canres-111",
@@ -858,15 +866,15 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
 ---
 
 ### 4.11. SetChargingProfile, ClearChargingProfile & GetCompositeSchedule
-- **Má»¥c Ä‘Ã­ch (Smart Charging Profile)**: CSMS giá»›i háº¡n cÃ´ng suáº¥t phÃ¡t cá»§a tráº¡m theo khung giá» cao Ä‘iá»ƒm / tháº¥p Ä‘iá»ƒm hoáº·c Ä‘iá»u phá»‘i cÃ¢n báº±ng táº£i theo lÆ°á»›i Ä‘iá»‡n.
+- **Mục đích (Smart Charging Profile)**: CSMS giới hạn công suất phát của trạm theo khung giờ cao điểm / thấp điểm hoặc điều phối cân bằng tải theo lưới điện.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m - SetChargingProfile):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm - SetChargingProfile):**
+```json
 [
   2,
   "cmd-prof-112",
@@ -897,10 +905,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     }
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-prof-112",
@@ -908,10 +916,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m - GetCompositeSchedule):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm - GetCompositeSchedule):**
+```json
 [
   2,
   "cmd-compsch-113",
@@ -922,10 +930,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "chargingRateUnit": "A"
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-compsch-113",
@@ -945,15 +953,15 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     }
   }
 ]
-`
+```
 
 ---
 
 ### 4.12. SendLocalList & GetLocalListVersion
-- **Má»¥c Ä‘Ã­ch**: Äá»“ng bá»™ danh sÃ¡ch tháº» offline (Whitelist) xuá»‘ng bá»™ nhá»› Flash cá»§a tráº¡m sáº¡c, phá»¥c vá»¥ sáº¡c kháº©n cáº¥p khi máº¥t máº¡ng.
+- **Mục đích**: Đồng bộ danh sách thẻ offline (Whitelist) xuống bộ nhớ Flash của trạm sạc, phục vụ sạc khẩn cấp khi mất mạng.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m - SendLocalList):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm - SendLocalList):**
+```json
 [
   2,
   "cmd-locallist-114",
@@ -983,10 +991,10 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     ]
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-locallist-114",
@@ -994,15 +1002,15 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "status": "Accepted"
   }
 ]
-`
+```
 
 ---
 
 ### 4.13. GetDiagnostics & UpdateFirmware
-- **Má»¥c Ä‘Ã­ch**: CSMS kÃ­ch hoáº¡t quÃ¡ trÃ¬nh thu tháº­p log file hoáº·c cáº­p nháº­t OTA tá»« xa.
+- **Mục đích**: CSMS kích hoạt quá trình thu thập log file hoặc cập nhật OTA từ xa.
 
-**GÃ³i tin CALL [2] (CSMS -> Tráº¡m - UpdateFirmware):**
-`json
+**Gói tin CALL [2] (CSMS -> Trạm - UpdateFirmware):**
+```json
 [
   2,
   "cmd-fw-115",
@@ -1014,170 +1022,170 @@ Local (NgÆ°á»i dÃ¹ng báº¥m HMI / quáº¹t tháº»), Remote (CSMS ra
     "retryInterval": 60
   }
 ]
-`
+```
 
-**GÃ³i tin CALLRESULT [3] (Tráº¡m -> CSMS):**
-`json
+**Gói tin CALLRESULT [3] (Trạm -> CSMS):**
+```json
 [
   3,
   "cmd-fw-115",
   {}
 ]
-`
+```
 
 ---
 
-## 5. Báº¢NG MA TRáº¬N THAM Sá» Cáº¤U HÃŒNH (CONFIGURATION KEYS)
+## 5. BẢNG MA TRẬN THAM SỐ CẤU HÌNH (CONFIGURATION KEYS)
 
-Báº£ng tá»•ng há»£p cÃ¡c tham sá»‘ Ä‘Æ°á»£c quáº£n lÃ½ trong mÃ´-Ä‘un miniocpp_config_store.c cá»§a tráº¡m sáº¡c:
+Bảng tổng hợp các tham số được quản lý trong mô-đun `miniocpp_config_store.c` của trạm sạc:
 
-| TÃªn Tham Sá»‘ (Key) | Kiá»ƒu Dá»¯ Liá»‡u | Máº·c Äá»‹nh | Thuá»™c TÃ­nh | Ã NghÄ©a Ká»¹ Thuáº­t |
+| Tên Tham Số (Key) | Kiểu Dữ Liệu | Mặc Định | Thuộc Tính | Ý Nghĩa Kỹ Thuật |
 | :--- | :---: | :---: | :---: | :--- |
-| HeartbeatInterval | Integer | 60 | RW | Chu ká»³ (giÃ¢y) gá»­i báº£n tin nhá»‹p tim sá»‘ng Heartbeat. |
-| ConnectionTimeOut | Integer | 30 | RW | Thá»i gian (giÃ¢y) chá» cáº¯m sÃºng vÃ o xe sau khi quáº¹t tháº». |
-| MeterValueSampleInterval | Integer | 10 | RW | Chu ká»³ (giÃ¢y) trÃ­ch máº«u Ä‘o Ä‘áº¿m gá»­i MeterValues. |
-| ClockAlignedDataInterval | Integer |   | RW | Chu ká»³ cÄƒn chá»‰nh Ä‘á»“ng há»“ nÄƒng lÆ°á»£ng (0 = vÃ´ hiá»‡u hÃ³a). |
-| NumberOfConnectors | Integer | 2 | R | Sá»‘ lÆ°á»£ng sÃºng sáº¡c váº­t lÃ½ trang bá»‹ trÃªn trá»¥ sáº¡c. |
-| AuthorizeRemoteTxRequests| Boolean | 	rue| RW | Báº¯t buá»™c xÃ¡c thá»±c láº¡i idTag khi nháº­n RemoteStart. |
-| LocalPreAuthorize | Boolean | alse| RW | Cho phÃ©p cáº¯m sÃºng vÃ  thá»­ cÃ¡ch Ä‘iá»‡n trÆ°á»›c khi quáº¹t tháº». |
-| LocalAuthorizeOffline | Boolean | 	rue | RW | Cho phÃ©p quáº¹t tháº» sáº¡c báº±ng danh báº¡ cá»¥c bá»™ khi máº¥t máº¡ng. |
-| MeterValuesSampledData | String | Energy.Active.Import.Register,Voltage,Current.Import,Power.Active.Import,SoC | RW | Danh sÃ¡ch Ä‘áº¡i lÆ°á»£ng Ä‘o Ä‘áº¿m Ä‘Ã³ng gÃ³i vÃ o MeterValues. |
-| StopTransactionOnEVSideDisconnect | Boolean | 	rue | RW | Tá»± Ä‘á»™ng káº¿t thÃºc phiÃªn sáº¡c khi phÃ­a xe rÃºt sÃºng. |
-| StopTransactionOnInvalidId | Boolean | 	rue | RW | Ngáº¯t sáº¡c ngay náº¿u tháº» RFID bá»‹ bÃ¡o máº¥t/khÃ³a giá»¯a chá»«ng. |
-| UnlockConnectorOnEVSideDisconnect | Boolean | 	rue | RW | Tá»± nháº£ chá»‘t ngÃ m sÃºng khi xe ngáº¯t tiáº¿p Ä‘iá»ƒm CP/PP. |
-| GetConfigurationMaxKeys| Integer | 32 | R | Sá»‘ lÆ°á»£ng key tá»‘i Ä‘a CSMS cÃ³ thá»ƒ truy váº¥n trong 1 lá»‡nh. |
-| ResetRetries | Integer | 3 | RW | Sá»‘ láº§n thá»­ khá»Ÿi Ä‘á»™ng láº¡i náº¿u tráº¡m gáº·p lá»—i nghiÃªm trá»ng. |
-| WebSocketPingInterval | Integer | 30 | RW | Chu ká»³ ping má»©c WebSocket frame (giÃ¢y). |
-| SupportedFeatureProfiles| String | Core,FirmwareManagement,LocalAuthListManagement,Reservation,SmartCharging,RemoteTrigger | R | Danh má»¥c 6 Feature Profiles OCA mÃ  tráº¡m Ä‘Ã£ há»— trá»£. |
-| LocalAuthListEnabled | Boolean | 	rue | RW | Báº­t/táº¯t tÃ­nh nÄƒng xÃ¡c thá»±c danh báº¡ ná»™i bá»™ tráº¡m. |
-| LocalAuthListMaxLength| Integer | 20 | R | Sá»‘ lÆ°á»£ng tháº» tá»‘i Ä‘a lÆ°u trá»¯ trong bá»™ nhá»› Flash F429. |
-| SendLocalListMaxLength| Integer | 20 | R | Sá»‘ tháº» tá»‘i Ä‘a gá»­i trong 1 gÃ³i tin SendLocalList. |
-| ReserveConnectorZeroSupported | Boolean | alse | R | KhÃ´ng cho phÃ©p Ä‘áº·t trÆ°á»›c connector 0 (toÃ n tráº¡m). |
-| ChargeProfileMaxStackLevel | Integer | 5 | R | Sá»‘ lá»›p chá»“ng profile cÃ´ng suáº¥t tá»‘i Ä‘a cho Smart Charging. |
-| ChargingScheduleAllowedChargingRateUnit | String | Current | R | ÄÆ¡n vá»‹ Ä‘iá»u khiá»ƒn dÃ²ng sáº¡c (Current - Ampe). |
-| ChargingScheduleMaxPeriods | Integer | 6 | R | Sá»‘ bÆ°á»›c khoáº£ng thá»i gian tá»‘i Ä‘a trong 1 lá»‹ch biá»ƒu sáº¡c. |
-| MaxChargingProfilesInstalled | Integer | 5 | R | Sá»‘ lÆ°á»£ng Charging Profile tá»‘i Ä‘a cÃ³ thá»ƒ náº¡p vÃ o RAM. |
+| `HeartbeatInterval` | Integer | `60` | RW | Chu kỳ (giây) gửi bản tin nhịp tim sống Heartbeat. |
+| `ConnectionTimeOut` | Integer | `30` | RW | Thời gian (giây) chờ cắm súng vào xe sau khi quẹt thẻ. |
+| `MeterValueSampleInterval` | Integer | `10` | RW | Chu kỳ (giây) trích mẫu đo đếm gửi MeterValues. |
+| `ClockAlignedDataInterval` | Integer | `0` | RW | Chu kỳ căn chỉnh đồng hồ năng lượng (0 = vô hiệu hóa). |
+| `NumberOfConnectors` | Integer | `2` | R | Số lượng súng sạc vật lý trang bị trên trụ sạc. |
+| `AuthorizeRemoteTxRequests`| Boolean | `true`| RW | Bắt buộc xác thực lại idTag khi nhận RemoteStart. |
+| `LocalPreAuthorize` | Boolean | `false`| RW | Cho phép cắm súng và thử cách điện trước khi quẹt thẻ. |
+| `LocalAuthorizeOffline` | Boolean | `true` | RW | Cho phép quẹt thẻ sạc bằng danh bạ cục bộ khi mất mạng. |
+| `MeterValuesSampledData` | String | `Energy.Active.Import.Register,Voltage,Current.Import,Power.Active.Import,SoC` | RW | Danh sách đại lượng đo đếm đóng gói vào MeterValues. |
+| `StopTransactionOnEVSideDisconnect` | Boolean | `true` | RW | Tự động kết thúc phiên sạc khi phía xe rút súng. |
+| `StopTransactionOnInvalidId` | Boolean | `true` | RW | Ngắt sạc ngay nếu thẻ RFID bị báo mất/khóa giữa chừng. |
+| `UnlockConnectorOnEVSideDisconnect` | Boolean | `true` | RW | Tự nhả chốt ngàm súng khi xe ngắt tiếp điểm CP/PP. |
+| `GetConfigurationMaxKeys`| Integer | `32` | R | Số lượng key tối đa CSMS có thể truy vấn trong 1 lệnh. |
+| `ResetRetries` | Integer | `3` | RW | Số lần thử khởi động lại nếu trạm gặp lỗi nghiêm trọng. |
+| `WebSocketPingInterval` | Integer | `30` | RW | Chu kỳ ping mức WebSocket frame (giây). |
+| `SupportedFeatureProfiles`| String | `Core,FirmwareManagement,LocalAuthListManagement,Reservation,SmartCharging,RemoteTrigger` | R | Danh mục 6 Feature Profiles OCA mà trạm đã hỗ trợ. |
+| `LocalAuthListEnabled` | Boolean | `true` | RW | Bật/tắt tính năng xác thực danh bạ nội bộ trạm. |
+| `LocalAuthListMaxLength`| Integer | `20` | R | Số lượng thẻ tối đa lưu trữ trong bộ nhớ Flash F429. |
+| `SendLocalListMaxLength`| Integer | `20` | R | Số thẻ tối đa gửi trong 1 gói tin `SendLocalList`. |
+| `ReserveConnectorZeroSupported` | Boolean | `false` | R | Không cho phép đặt trước connector 0 (toàn trạm). |
+| `ChargeProfileMaxStackLevel` | Integer | `5` | R | Số lớp chồng profile công suất tối đa cho Smart Charging. |
+| `ChargingScheduleAllowedChargingRateUnit` | String | `Current` | R | Đơn vị điều khiển dòng sạc (`Current` - Ampe). |
+| `ChargingScheduleMaxPeriods` | Integer | `6` | R | Số bước khoảng thời gian tối đa trong 1 lịch biểu sạc. |
+| `MaxChargingProfilesInstalled` | Integer | `5` | R | Số lượng Charging Profile tối đa có thể nạp vào RAM. |
 
 ---
 
-## 6. PHÃ‚N TÃCH KHOáº¢NG TRá»NG (GAP ANALYSIS) - Dá»° ÃN CÃ’N THIáº¾U NHá»®NG GÃŒ?
+## 6. PHÂN TÍCH KHOẢNG TRỐNG (GAP ANALYSIS) - DỰ ÁN CÒN THIẾU NHỮNG GÌ?
 
-Máº·c dÃ¹ dá»± Ã¡n Ä‘Ã£ há»— trá»£ trá»n váº¹n cáº£ 6 Feature Profiles chuáº©n cá»§a OCPP 1.6J trÃªn cáº£ pháº§n cá»©ng STM32F429 vÃ  mÃ¡y chá»§ CSMS Go Backend, Ä‘á»ƒ Ä‘Æ°a há»‡ thá»‘ng vÃ o váº­n hÃ nh thÆ°Æ¡ng máº¡i quy mÃ´ lá»›n (HÃ ng chá»¥c nghÃ¬n cá»•ng sáº¡c toÃ n quá»‘c), há»‡ thá»‘ng cÃ²n má»™t sá»‘ khoáº£ng trá»‘ng ká»¹ thuáº­t cáº§n tiáº¿p tá»¥c hoÃ n thiá»‡n:
+Mặc dù dự án đã hỗ trợ trọn vẹn cả 6 Feature Profiles chuẩn của OCPP 1.6J trên cả phần cứng STM32F429 và máy chủ CSMS Go Backend, để đưa hệ thống vào vận hành thương mại quy mô lớn (Hàng chục nghìn cổng sạc toàn quốc), hệ thống còn một số khoảng trống kỹ thuật cần tiếp tục hoàn thiện:
 
-### 6.1. Khoáº£ng trá»‘ng so vá»›i TiÃªu chuáº©n OCA OCPP 1.6J Edition 2 Ä‘áº§y Ä‘á»§
+### 6.1. Khoảng trống so với Tiêu chuẩn OCA OCPP 1.6J Edition 2 đầy đủ
 
-`mermaid
+```mermaid
 graph TD
-    subgraph CURRENT ["HIá»†N TRáº NG ÄÃƒ HOÃ€N THÃ€NH"]
+    subgraph CURRENT ["HIỆN TRẠNG ĐÃ HOÀN THÀNH"]
         C1["Core Profile 100%"]
         C2["Remote Trigger 100%"]
         C3["Basic Smart Charging (5 profiles)"]
-        C4["Basic Local Auth (20 tháº» Flash)"]
+        C4["Basic Local Auth (20 thẻ Flash)"]
         C5["Security Profile 2 (WSS + Basic Auth)"]
     end
 
-    subgraph GAPS ["KHOáº¢NG TRá»NG Cáº¦N HOÃ€N THIá»†N (GAPS)"]
-        G1["External Flash Paging cho Local Auth (HÃ ng ngÃ n tháº»)"]
-        G2["Dynamic Load Management (DLM) theo cÃ´ng tÆ¡ tá»•ng"]
+    subgraph GAPS ["KHOẢNG TRỐNG CẦN HOÀN THIỆN (GAPS)"]
+        G1["External Flash Paging cho Local Auth (Hàng ngàn thẻ)"]
+        G2["Dynamic Load Management (DLM) theo công tơ tổng"]
         G3["Upload Diagnostics Log qua S3 Multipart Presigned URL"]
-        G4["Security Profile 3: mTLS vá»›i Chip ATECC608A / TPM"]
-        G5["ClearChargingProfile vá»›i bá»™ lá»c Ä‘a tiÃªu chÃ­ sÃ¢u"]
+        G4["Security Profile 3: mTLS với Chip ATECC608A / TPM"]
+        G5["ClearChargingProfile với bộ lọc đa tiêu chí sâu"]
     end
 
     CURRENT -.-> GAPS
-`
+```
 
-1. **Giá»›i háº¡n Dung lÆ°á»£ng Danh báº¡ Cá»¥c bá»™ (Local Auth List Capacity)**:
-   - *Hiá»‡n tráº¡ng*: Danh báº¡ offline hiá»‡n Ä‘ang lÆ°u trong bá»™ nhá»› Flash ná»™i cá»§a STM32F429 vá»›i dung lÆ°á»£ng tá»‘i Ä‘a 20 tháº» (LocalAuthListMaxLength = 20).
-   - *CÃ²n thiáº¿u*: Cáº§n nÃ¢ng cáº¥p cÆ¡ cháº¿ lÆ°u trá»¯ phÃ¢n trang (Paging) trÃªn External SPI Flash (W25Q64 - 8MB) hoáº·c tháº» nhá»› MicroSD Ä‘á»ƒ lÆ°u trá»¯ tá»« 5,000 Ä‘áº¿n 10,000 tháº» RFID cá»§a cÃ¡c Ä‘á»™i xe há»£p Ä‘á»“ng (Fleet), cho phÃ©p váº­n hÃ nh offline dÃ i ngÃ y khi Ä‘á»©t cÃ¡p quang.
-2. **Quáº£n lÃ½ CÃ¢n báº±ng táº£i Äá»™ng (Dynamic Load Management - DLM)**:
-   - *Hiá»‡n tráº¡ng*: Smart Charging Profile má»›i há»— trá»£ Ä‘áº·t dÃ²ng cá»‘ Ä‘á»‹nh theo khung giá» Ä‘á»‹nh sáºµn (TxDefaultProfile / ChargePointMaxProfile).
-   - *CÃ²n thiáº¿u*: ChÆ°a tÃ­ch há»£p thuáº­t toÃ¡n Ä‘iá»u tiáº¿t cÃ´ng suáº¥t Ä‘á»™ng thá»i gian thá»±c theo Ä‘á»“ng há»“ Ä‘o tá»•ng cá»§a tráº¡m biáº¿n Ã¡p tráº¡m sáº¡c (thÃ´ng qua Modbus TCP Meter) Ä‘á»ƒ chia táº£i linh hoáº¡t giá»¯a cÃ¡c sÃºng sáº¡c khi Ä‘iá»‡n Ã¡p lÆ°á»›i bá»‹ sá»¥t giáº£m.
-3. **CÆ¡ cháº¿ Truyá»n nháº­n File Nháº­t kÃ½ & Firmware (Diagnostics / OTA Artifacts)**:
-   - *Hiá»‡n tráº¡ng*: Lá»‡nh GetDiagnostics vÃ  UpdateFirmware trÃªn F429 má»›i xá»­ lÃ½ tráº¡ng thÃ¡i mÃ¡y tráº¡ng thÃ¡i (State Machine mock/trigger sang ESP32).
-   - *CÃ²n thiáº¿u*: Module ESP32 cáº§n hoÃ n thiá»‡n tiáº¿n trÃ¬nh client HTTPS Multipart Form-Data táº£i file log nÃ©n 	ar.gz trá»±c tiáº¿p lÃªn S3 Presigned URL, cÃ³ cÆ¡ cháº¿ Resume khi rá»›t máº¡ng vÃ  Ä‘á»‘i soÃ¡t mÃ£ bÄƒm SHA-256 trÆ°á»›c khi giáº£i nÃ©n Flash.
-4. **Báº£o máº­t Pháº§n cá»©ng Cáº¥p cao (Security Profile 3 - mTLS)**:
-   - *Hiá»‡n tráº¡ng*: Tráº¡m Ä‘ang váº­n hÃ nh á»•n Ä‘á»‹nh trÃªn Security Profile 2 (MÃ£ hÃ³a Ä‘Æ°á»ng truyá»n TLS + HTTP Basic Auth qua Username/Password).
-   - *CÃ²n thiáº¿u*: ChÆ°a kÃ­ch hoáº¡t Security Profile 3 (XÃ¡c thá»±c 2 chiá»u mTLS vá»›i Client Certificate). Äá»ƒ Ä‘áº¡t chá»©ng nháº­n OCA Security Level 3, tráº¡m cáº§n tÃ­ch há»£p pháº§n cá»©ng Secure Element (nhÆ° Microchip ATECC608A hoáº·c STM32 TrustZone) Ä‘á»ƒ lÆ°u khÃ³a riÃªng tÆ° (Private Key) chá»‘ng trÃ­ch xuáº¥t váº­t lÃ½.
+1. **Giới hạn Dung lượng Danh bạ Cục bộ (Local Auth List Capacity)**:
+   - *Hiện trạng*: Danh bạ offline hiện đang lưu trong bộ nhớ Flash nội của STM32F429 với dung lượng tối đa 20 thẻ (`LocalAuthListMaxLength = 20`).
+   - *Còn thiếu*: Cần nâng cấp cơ chế lưu trữ phân trang (Paging) trên External SPI Flash (W25Q64 - 8MB) hoặc thẻ nhớ MicroSD để lưu trữ từ 5,000 đến 10,000 thẻ RFID của các đội xe hợp đồng (Fleet), cho phép vận hành offline dài ngày khi đứt cáp quang.
+2. **Quản lý Cân bằng tải Động (Dynamic Load Management - DLM)**:
+   - *Hiện trạng*: Smart Charging Profile mới hỗ trợ đặt dòng cố định theo khung giờ định sẵn (`TxDefaultProfile` / `ChargePointMaxProfile`).
+   - *Còn thiếu*: Chưa tích hợp thuật toán điều tiết công suất động thời gian thực theo đồng hồ đo tổng của trạm biến áp trạm sạc (thông qua Modbus TCP Meter) để chia tải linh hoạt giữa các súng sạc khi điện áp lưới bị sụt giảm.
+3. **Cơ chế Truyền nhận File Nhật ký & Firmware (Diagnostics / OTA Artifacts)**:
+   - *Hiện trạng*: Lệnh `GetDiagnostics` và `UpdateFirmware` trên F429 mới xử lý trạng thái máy trạng thái (State Machine mock/trigger sang ESP32).
+   - *Còn thiếu*: Module ESP32 cần hoàn thiện tiến trình client HTTPS Multipart Form-Data tải file log nén `tar.gz` trực tiếp lên S3 Presigned URL, có cơ chế Resume khi rớt mạng và đối soát mã băm SHA-256 trước khi giải nén Flash.
+4. **Bảo mật Phần cứng Cấp cao (Security Profile 3 - mTLS)**:
+   - *Hiện trạng*: Trạm đang vận hành ổn định trên Security Profile 2 (Mã hóa đường truyền TLS + HTTP Basic Auth qua Username/Password).
+   - *Còn thiếu*: Chưa kích hoạt Security Profile 3 (Xác thực 2 chiều mTLS với Client Certificate). Để đạt chứng nhận OCA Security Level 3, trạm cần tích hợp phần cứng Secure Element (như Microchip ATECC608A hoặc STM32 TrustZone) để lưu khóa riêng tư (Private Key) chống trích xuất vật lý.
 
 ---
 
-### 6.2. So sÃ¡nh vÃ  Lá»™ trÃ¬nh NÃ¢ng cáº¥p lÃªn OCPP 2.0.1
+### 6.2. So sánh và Lộ trình Nâng cấp lên OCPP 2.0.1
 
-Äá»ƒ Ä‘Ã³n Ä‘áº§u xu hÆ°á»›ng xe Ä‘iá»‡n tháº¿ há»‡ má»›i (VinFast, Hyundai, Porsche, Mercedes) vá»›i cÃ¡c tiÃªu chuáº©n sáº¡c siÃªu nhanh 800V vÃ  sáº¡c tá»± Ä‘á»™ng thÃ´ng minh, dá»± Ã¡n cáº§n hÆ°á»›ng tá»›i lá»™ trÃ¬nh OCPP 2.0.1:
+Để đón đầu xu hướng xe điện thế hệ mới (VinFast, Hyundai, Porsche, Mercedes) với các tiêu chuẩn sạc siêu nhanh 800V và sạc tự động thông minh, dự án cần hướng tới lộ trình OCPP 2.0.1:
 
-| TiÃªu ChÃ­ So SÃ¡nh | Dá»± Ãn Hiá»‡n Táº¡i (OCPP 1.6J) | Má»¥c TiÃªu TÆ°Æ¡ng Lai (OCPP 2.0.1) | Ã NghÄ©a Chuyá»ƒn Äá»•i |
+| Tiêu Chí So Sánh | Dự Án Hiện Tại (OCPP 1.6J) | Mục Tiêu Tương Lai (OCPP 2.0.1) | Ý Nghĩa Chuyển Đổi |
 | :--- | :--- | :--- | :--- |
-| **Nháº­n diá»‡n Tá»± Ä‘á»™ng (Plug & Charge)** | Nháº­n diá»‡n qua DataTransfer (VIN/EVCC) káº¿t há»£p tháº» RFID/App. | TÃ­ch há»£p sÃ¢u chuáº©n **ISO 15118-2 / ISO 15118-20**. Quáº£n lÃ½ PKI X.509 Certificate tá»± Ä‘á»™ng. | Cáº¯m sÃºng lÃ  sáº¡c ngay vÃ  trá»« tiá»n tháº» tÃ­n dá»¥ng tá»± Ä‘á»™ng, khÃ´ng cáº§n quáº¹t tháº» hay má»Ÿ Ä‘iá»‡n thoáº¡i. |
-| **MÃ´ hÃ¬nh Dá»¯ liá»‡u Thiáº¿t bá»‹ (Device Model)** | Cáº¥u hÃ¬nh pháº³ng qua cÃ¡c chuá»—i ConfigurationKey. | MÃ´ hÃ¬nh phÃ¢n cáº¥p hÆ°á»›ng Ä‘á»‘i tÆ°á»£ng: Component $\rightarrow$ Variable $\rightarrow$ Attribute. | Quáº£n lÃ½ vÃ  giÃ¡m sÃ¡t chi tiáº¿t tá»›i tá»«ng module nguá»“n AcePower, cáº£m biáº¿n nhiá»‡t Ä‘á»™, contactor. |
-| **Báº£n tin Quáº£n lÃ½ Giao dá»‹ch (Transactions)** | 3 báº£n tin riÃªng biá»‡t: StartTransaction, MeterValues, StopTransaction. | Gom thÃ nh 1 báº£n tin duy nháº¥t: **TransactionEvent** vá»›i cÃ¡c trigger Started, Updated, Ended. | Giáº£m thiá»ƒu Ä‘á»™ trá»…, tiáº¿t kiá»‡m bÄƒng thÃ´ng 4G vÃ  Ä‘áº£m báº£o tÃ­nh toÃ n váº¹n dá»¯ liá»‡u káº¿ toÃ¡n. |
-| **Cáº¥p Ä‘á»™ Báº£o máº­t (Cybersecurity)** | Bá»• sung qua Whitepaper (Security Profile 1/2/3). | **Báº£o máº­t cá»‘t lÃµi tÃ­ch há»£p sáºµn**: TLS 1.3 báº¯t buá»™c, mÃ£ hÃ³a lÆ°u trá»¯, phÃ¢n quyá»n Role-Based RBAC. | Äáº¡t chuáº©n an ninh máº¡ng thanh toÃ¡n vÃ  báº£o vá»‡ háº¡ táº§ng Ä‘iá»‡n lÆ°á»›i quá»‘c gia. |
-| **Äiá»u khiá»ƒn LÆ°á»›i Ä‘iá»‡n 2 chiá»u (V2G - Vehicle to Grid)** | ChÆ°a há»— trá»£. | Há»— trá»£ xáº£ Ä‘iá»‡n tá»« xe ngÆ°á»£c vÃ o lÆ°á»›i Ä‘iá»‡n (Bidirectional Power Transfer). | GiÃºp tráº¡m sáº¡c tham gia thá»‹ trÆ°á»ng dá»‹ch vá»¥ phá»¥ trá»£ Ä‘iá»‡n lÆ°á»›i (Demand Response). |
+| **Nhận diện Tự động (Plug & Charge)** | Nhận diện qua DataTransfer (VIN/EVCC) kết hợp thẻ RFID/App. | Tích hợp sâu chuẩn **ISO 15118-2 / ISO 15118-20**. Quản lý PKI X.509 Certificate tự động. | Cắm súng là sạc ngay và trừ tiền thẻ tín dụng tự động, không cần quẹt thẻ hay mở điện thoại. |
+| **Mô hình Dữ liệu Thiết bị (Device Model)** | Cấu hình phẳng qua các chuỗi `ConfigurationKey`. | Mô hình phân cấp hướng đối tượng: `Component` $\rightarrow$ `Variable` $\rightarrow$ `Attribute`. | Quản lý và giám sát chi tiết tới từng module nguồn AcePower, cảm biến nhiệt độ, contactor. |
+| **Bản tin Quản lý Giao dịch (Transactions)** | 3 bản tin riêng biệt: `StartTransaction`, `MeterValues`, `StopTransaction`. | Gom thành 1 bản tin duy nhất: **`TransactionEvent`** với các trigger `Started`, `Updated`, `Ended`. | Giảm thiểu độ trễ, tiết kiệm băng thông 4G và đảm bảo tính toàn vẹn dữ liệu kế toán. |
+| **Cấp độ Bảo mật (Cybersecurity)** | Bổ sung qua Whitepaper (Security Profile 1/2/3). | **Bảo mật cốt lõi tích hợp sẵn**: TLS 1.3 bắt buộc, mã hóa lưu trữ, phân quyền Role-Based RBAC. | Đạt chuẩn an ninh mạng thanh toán và bảo vệ hạ tầng điện lưới quốc gia. |
+| **Điều khiển Lưới điện 2 chiều (V2G - Vehicle to Grid)** | Chưa hỗ trợ. | Hỗ trợ xả điện từ xe ngược vào lưới điện (Bidirectional Power Transfer). | Giúp trạm sạc tham gia thị trường dịch vụ phụ trợ điện lưới (Demand Response). |
 
 ---
 
-## 7. Ká»ŠCH Báº¢N & HÆ¯á»šNG DáºªN KIá»‚M THá»¬ GÃ“I TIN THá»°C Táº¾
+## 7. KỊCH BẢN & HƯỚNG DẪN KIỂM THỬ GÓI TIN THỰC TẾ
 
-Quáº£n trá»‹ viÃªn vÃ  ká»¹ sÆ° láº­p trÃ¬nh cÃ³ thá»ƒ kiá»ƒm thá»­ toÃ n bá»™ cÃ¡c báº£n tin OCPP 1.6J trá»±c tiáº¿p vá»›i CSMS Gateway báº±ng cÃ´ng cá»¥ dÃ²ng lá»‡nh websocat hoáº·c Postman WebSocket Client.
+Quản trị viên và kỹ sư lập trình có thể kiểm thử toàn bộ các bản tin OCPP 1.6J trực tiếp với CSMS Gateway bằng công cụ dòng lệnh `websocat` hoặc `Postman WebSocket Client`.
 
-### 7.1. Káº¿t ná»‘i thá»­ nghiá»‡m qua WebSocat
-Má»Ÿ terminal vÃ  gÃµ lá»‡nh káº¿t ná»‘i WebSocket cÃ³ kÃ¨m chá»©ng thá»±c Basic Auth:
-`ash
+### 7.1. Kết nối thử nghiệm qua WebSocat
+Mở terminal và gõ lệnh kết nối WebSocket có kèm chứng thực Basic Auth:
+```bash
 websocat -H="Authorization: Basic RVZTRV9JTVRfMDE6VEhBQ09AQXV0aEtleTIwMjY=" \
          -H="Sec-WebSocket-Protocol: ocpp1.6" \
          wss://csms.thaco.com:9000/ocpp/1.6J/EVSE_TEST_001
-`
+```
 
-### 7.2. Ká»‹ch báº£n 1: Khá»Ÿi Ä‘á»™ng Tráº¡m (Boot & Heartbeat Flow)
-1. **Tráº¡m gá»­i BootNotification:**
-   `json
+### 7.2. Kịch bản 1: Khởi động Trạm (Boot & Heartbeat Flow)
+1. **Trạm gửi BootNotification:**
+   ```json
    [2, "test-001", "BootNotification", {"chargePointVendor":"THACO","chargePointModel":"H743","chargePointSerialNumber":"SN-001","firmwareVersion":"v1.0.4"}]
-   `
-2. **CSMS pháº£n há»“i Accepted:**
-   `json
+   ```
+2. **CSMS phản hồi Accepted:**
+   ```json
    [3, "test-001", {"status":"Accepted","currentTime":"2026-09-18T12:50:00.000Z","interval":60}]
-   `
-3. **Tráº¡m gá»­i bÃ¡o tráº¡ng thÃ¡i sÃºng:**
-   `json
+   ```
+3. **Trạm gửi báo trạng thái súng:**
+   ```json
    [2, "test-002", "StatusNotification", {"connectorId":1,"errorCode":"NoError","status":"Available","timestamp":"2026-09-18T12:50:01.000Z"}]
-   `
+   ```
 
-### 7.3. Ká»‹ch báº£n 2: PhiÃªn Sáº¡c HoÃ n Chá»‰nh tá»« App (Remote Start -> Charging -> Stop)
-1. **CSMS gá»­i lá»‡nh RemoteStartTransaction:**
-   `json
+### 7.3. Kịch bản 2: Phiên Sạc Hoàn Chỉnh từ App (Remote Start -> Charging -> Stop)
+1. **CSMS gửi lệnh RemoteStartTransaction:**
+   ```json
    [2, "cmd-991", "RemoteStartTransaction", {"connectorId":1,"idTag":"USER-THACO-888"}]
-   `
-2. **Tráº¡m pháº£n há»“i cháº¥p nháº­n lá»‡nh:**
-   `json
+   ```
+2. **Trạm phản hồi chấp nhận lệnh:**
+   ```json
    [3, "cmd-991", {"status":"Accepted"}]
-   `
-3. **Tráº¡m bÃ¡o sÃºng chuyá»ƒn sang tráº¡ng thÃ¡i Preparing rá»“i báº¯t Ä‘áº§u sáº¡c:**
-   `json
+   ```
+3. **Trạm báo súng chuyển sang trạng thái Preparing rồi bắt đầu sạc:**
+   ```json
    [2, "test-003", "StatusNotification", {"connectorId":1,"errorCode":"NoError","status":"Preparing","timestamp":"2026-09-18T12:50:10.000Z"}]
    [2, "test-004", "StartTransaction", {"connectorId":1,"idTag":"USER-THACO-888","meterStart":1000,"timestamp":"2026-09-18T12:50:15.000Z"}]
-   `
-4. **CSMS pháº£n há»“i táº¡o Transaction ID:**
-   `json
+   ```
+4. **CSMS phản hồi tạo Transaction ID:**
+   ```json
    [3, "test-004", {"transactionId":10092,"idTagInfo":{"status":"Accepted"}}]
-   `
-5. **Tráº¡m Ä‘á»‹nh ká»³ gá»­i dá»¯ liá»‡u Ä‘o Ä‘áº¿m (MeterValues):**
-   `json
+   ```
+5. **Trạm định kỳ gửi dữ liệu đo đếm (MeterValues):**
+   ```json
    [2, "test-005", "MeterValues", {"connectorId":1,"transactionId":10092,"meterValue":[{"timestamp":"2026-09-18T12:50:30.000Z","sampledValue":[{"value":"1250","measurand":"Energy.Active.Import.Register","unit":"Wh"},{"value":"400.0","measurand":"Voltage","unit":"V"},{"value":"100.0","measurand":"Current.Import","unit":"A"},{"value":"40000.0","measurand":"Power.Active.Import","unit":"W"},{"value":"55.0","measurand":"SoC","unit":"Percent"}]}]}]
-   `
-6. **CSMS gá»­i lá»‡nh dá»«ng sáº¡c tá»« xa RemoteStopTransaction:**
-   `json
+   ```
+6. **CSMS gửi lệnh dừng sạc từ xa RemoteStopTransaction:**
+   ```json
    [2, "cmd-992", "RemoteStopTransaction", {"transactionId":10092}]
-   `
-7. **Tráº¡m pháº£n há»“i cháº¥p nháº­n vÃ  gá»­i StopTransaction chá»‘t chá»‰ sá»‘ Ä‘iá»‡n:**
-   `json
+   ```
+7. **Trạm phản hồi chấp nhận và gửi StopTransaction chốt chỉ số điện:**
+   ```json
    [3, "cmd-992", {"status":"Accepted"}]
    [2, "test-006", "StopTransaction", {"transactionId":10092,"meterStop":15000,"timestamp":"2026-09-18T13:00:00.000Z","reason":"Remote"}]
    [3, "test-006", {"idTagInfo":{"status":"Accepted"}}]
-   `
-8. **Tráº¡m bÃ¡o sÃºng trá»Ÿ láº¡i tráº¡ng thÃ¡i sáºµn sÃ ng (Available):**
-   `json
+   ```
+8. **Trạm báo súng trở lại trạng thái sẵn sàng (Available):**
+   ```json
    [2, "test-007", "StatusNotification", {"connectorId":1,"errorCode":"NoError","status":"Available","timestamp":"2026-09-18T13:00:05.000Z"}]
-   `
+   ```
 
 ---
-*TÃ i liá»‡u nÃ y Ä‘Æ°á»£c biÃªn soáº¡n Ä‘á»™c quyá»n cho Há»‡ thá»‘ng Quáº£n trá»‹ & Váº­n hÃ nh Tráº¡m Sáº¡c Xe Äiá»‡n THACO EVSE. NghiÃªm cáº¥m sao chÃ©p hoáº·c phÃ¢n phá»‘i khi chÆ°a cÃ³ sá»± cháº¥p thuáº­n cá»§a Ban CÃ´ng nghá»‡ ThÃ´ng tin & Tá»± Ä‘á»™ng hÃ³a THACO.*
+*Tài liệu này được biên soạn độc quyền cho Hệ thống Quản trị & Vận hành Trạm Sạc Xe Điện THACO EVSE. Nghiêm cấm sao chép hoặc phân phối khi chưa có sự chấp thuận của Ban Công nghệ Thông tin & Tự động hóa THACO.*
