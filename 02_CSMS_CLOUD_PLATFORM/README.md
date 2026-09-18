@@ -62,3 +62,4 @@ Giao diện quản trị trung tâm hỗ trợ song ngữ (**Tiếng Việt / En
 3. [SEPAY_PAYMENT_INTEGRATION.md](SEPAY_PAYMENT_INTEGRATION.md): Cơ chế Webhook IPN nhận biến động số dư VietQR và cộng tiền tự động.
 
 4. [CSMS_REST_API_SPECIFICATION.md](CSMS_REST_API_SPECIFICATION.md): Đặc tả chi tiết toàn bộ danh mục RESTful API (Auth, Mobile Driver, CSMS Admin, OCPP Commands, SePay Webhook).
+5. [OPERATOR_ADMIN_USER_MANUAL.md](OPERATOR_ADMIN_USER_MANUAL.md): Sổ tay hướng dẫn vận hành và xử trị sự cố dành cho Quản trị viên & Kỹ thuật viên CSMS Cloud. Đặc tả chi tiết toàn bộ danh mục RESTful API (Auth, Mobile Driver, CSMS Admin, OCPP Commands, SePay Webhook).

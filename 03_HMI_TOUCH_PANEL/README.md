@@ -55,3 +55,5 @@ lib/
 
 1. [HMI_STATE_MACHINE_AND_UI.md](HMI_STATE_MACHINE_AND_UI.md): Đặc tả chi tiết 9 màn hình giao diện người dùng và máy trạng thái HMI.
 2. [HMI_MODBUS_COMMUNICATION.md](HMI_MODBUS_COMMUNICATION.md): Giao thức truyền thông Modbus RTU serial và cơ chế Command Mailbox với vi điều khiển.
+
+3. [DRIVER_CHARGING_USER_MANUAL.md](DRIVER_CHARGING_USER_MANUAL.md): Cẩm nang hướng dẫn tài xế thao tác sạc xe trực tiếp tại màn hình cảm ứng trụ HMI.

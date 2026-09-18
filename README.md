@@ -88,6 +88,7 @@ flowchart TD
 - Đọc [GLOSSARY.md](GLOSSARY.md): Nắm bắt nhanh định nghĩa toàn bộ thuật ngữ chuyên ngành (OCPP, SECC, CCS2, SePay, v.v.).
 - Đọc [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md): Hiểu mô hình 5 tầng bảo mật và phân chia trách nhiệm hệ thống.
 - Đọc [05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md](05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md): Đánh giá mức độ sẵn sàng thương mại hóa và lộ trình mở rộng quy mô.
+- Đọc [05_OPERATIONS_AND_MAINTENANCE/CYBERSECURITY_AND_SECRETS_MANAGEMENT.md](05_OPERATIONS_AND_MAINTENANCE/CYBERSECURITY_AND_SECRETS_MANAGEMENT.md): Nắm vững chính sách tuân thủ an toàn thông tin và bảo vệ tài sản doanh nghiệp.
 
 ### 3.2. Dành cho Kỹ sư Lập trình Nhúng & Phần cứng (Embedded Engineers):
 - Đọc [01_EMBEDDED_FIRMWARE/README.md](01_EMBEDDED_FIRMWARE/README.md): Kiến trúc phân tán 3 chip ESP32-C6, STM32F429, STM32H743.
@@ -95,17 +96,22 @@ flowchart TD
 - Đọc [01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md](01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md): Bảng ánh xạ thanh ghi Modbus RTU chuẩn.
 - Đọc [01_EMBEDDED_FIRMWARE/OTA_UPDATE_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/OTA_UPDATE_SPECIFICATION.md): Cơ chế nạp OTA Web/MQTT, phân đoạn sub-chunk 512B và Live Dual-Bank Flash.
 - Đọc [01_EMBEDDED_FIRMWARE/BUILD_AND_FLASH_GUIDE.md](01_EMBEDDED_FIRMWARE/BUILD_AND_FLASH_GUIDE.md): Lệnh biên dịch và nạp flash cho cả 3 chip.
+- Đọc [05_OPERATIONS_AND_MAINTENANCE/ELECTRICAL_SAFETY_AND_COMMISSIONING.md](05_OPERATIONS_AND_MAINTENANCE/ELECTRICAL_SAFETY_AND_COMMISSIONING.md): Tiêu chuẩn an toàn điện cao thế, nối đất PE và quy trình nghiệm thu trạm sạc.
+- Đọc [05_OPERATIONS_AND_MAINTENANCE/TROUBLESHOOTING_AND_FAULT_CODES.md](05_OPERATIONS_AND_MAINTENANCE/TROUBLESHOOTING_AND_FAULT_CODES.md): Bảng tra cứu mã lỗi và phác đồ sửa chữa trạm sạc.
 
 ### 3.3. Dành cho Kỹ sư Máy chủ & Cloud (Backend & DevOps Engineers):
 - Đọc [02_CSMS_CLOUD_PLATFORM/README.md](02_CSMS_CLOUD_PLATFORM/README.md): Kiến trúc microservices Go và Next.js Admin UI.
 - Đọc [02_CSMS_CLOUD_PLATFORM/OCPP_1_6J_SPECIFICATION.md](02_CSMS_CLOUD_PLATFORM/OCPP_1_6J_SPECIFICATION.md): Đặc tả giao thức OCPP 1.6J và các bản tin Core Profile.
 - Đọc [02_CSMS_CLOUD_PLATFORM/DATABASE_AND_OPERATIONS.md](02_CSMS_CLOUD_PLATFORM/DATABASE_AND_OPERATIONS.md): Thiết kế CSDL PostgreSQL, TimescaleDB, sao lưu và dọn dẹp dữ liệu.
 - Đọc [02_CSMS_CLOUD_PLATFORM/SEPAY_PAYMENT_INTEGRATION.md](02_CSMS_CLOUD_PLATFORM/SEPAY_PAYMENT_INTEGRATION.md): Cơ chế Webhook IPN nhận biến động số dư VietQR.
+- Đọc [02_CSMS_CLOUD_PLATFORM/OPERATOR_ADMIN_USER_MANUAL.md](02_CSMS_CLOUD_PLATFORM/OPERATOR_ADMIN_USER_MANUAL.md): Sổ tay hướng dẫn vận hành trạm và xử lý sự cố cho Quản trị viên CSMS.
 - Đọc [05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md](05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md): Hướng dẫn triển khai Docker Compose, Nginx và Cloudflare SSL.
+- Đọc [05_OPERATIONS_AND_MAINTENANCE/CYBERSECURITY_AND_SECRETS_MANAGEMENT.md](05_OPERATIONS_AND_MAINTENANCE/CYBERSECURITY_AND_SECRETS_MANAGEMENT.md): Quản lý khóa bí mật, mTLS và phòng chống tấn công mạng.
 
 ### 3.4. Dành cho Kỹ sư Mobile App & HMI (Frontend & App Engineers):
 - Đọc [03_HMI_TOUCH_PANEL/README.md](03_HMI_TOUCH_PANEL/README.md): Kiến trúc ứng dụng màn hình Android HMI trên trụ sạc.
 - Đọc [03_HMI_TOUCH_PANEL/HMI_STATE_MACHINE_AND_UI.md](03_HMI_TOUCH_PANEL/HMI_STATE_MACHINE_AND_UI.md): 9 màn hình trạng thái trực quan.
+- Đọc [03_HMI_TOUCH_PANEL/DRIVER_CHARGING_USER_MANUAL.md](03_HMI_TOUCH_PANEL/DRIVER_CHARGING_USER_MANUAL.md): Cẩm nang hướng dẫn thao tác sạc xe thực tế dành cho tài xế.
 - Đọc [04_DRIVER_MOBILE_APP/README.md](04_DRIVER_MOBILE_APP/README.md): Ứng dụng tài xế THACO_Charge (iOS/Android).
 - Đọc [04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md](04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md): Hợp đồng API REST và luồng xác thực JWT/OTP.
 
@@ -129,12 +135,17 @@ flowchart TD
 6. **Phân hệ Màn hình Cảm ứng Trụ sạc (Android HMI):** [03_HMI_TOUCH_PANEL/README.md](03_HMI_TOUCH_PANEL/README.md)
    - [Máy trạng thái & Giao diện 9 màn hình](03_HMI_TOUCH_PANEL/HMI_STATE_MACHINE_AND_UI.md)
    - [Giao thức truyền thông Modbus RTU Serial](03_HMI_TOUCH_PANEL/HMI_MODBUS_COMMUNICATION.md)
+   - [Cẩm nang Hướng dẫn Thao tác Sạc Xe Dành cho Tài xế](03_HMI_TOUCH_PANEL/DRIVER_CHARGING_USER_MANUAL.md)
 7. **Phân hệ Ứng dụng Tài xế (THACO_Charge Mobile App):** [04_DRIVER_MOBILE_APP/README.md](04_DRIVER_MOBILE_APP/README.md)
    - [Tính năng Ứng dụng Tài xế](04_DRIVER_MOBILE_APP/DRIVER_APP_FEATURES.md)
    - [Hợp đồng API & Luồng xác thực Auth](04_DRIVER_MOBILE_APP/API_CONTRACT_AND_AUTH.md)
-8. **Vận hành, Triển khai & Kiểm thử:** [05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md](05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md)
+8. **Vận hành, Triển khai, An toàn & Xử lý Sự cố:** [05_OPERATIONS_AND_MAINTENANCE/README.md](05_OPERATIONS_AND_MAINTENANCE/README.md)
+   - [Cẩm nang Xử lý Sự cố & Bảng Tra cứu Mã lỗi (Troubleshooting & Fault Codes)](05_OPERATIONS_AND_MAINTENANCE/TROUBLESHOOTING_AND_FAULT_CODES.md)
+   - [Quy trình An toàn Điện & Nghiệm thu Trạm sạc (Safety & Commissioning)](05_OPERATIONS_AND_MAINTENANCE/ELECTRICAL_SAFETY_AND_COMMISSIONING.md)
+   - [Chính sách An ninh Mạng & Quản lý Khóa Bí mật (Cybersecurity & Secrets)](05_OPERATIONS_AND_MAINTENANCE/CYBERSECURITY_AND_SECRETS_MANAGEMENT.md)
+   - [Cẩm nang Triển khai Hạ tầng Máy chủ Docker Compose](05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md)
    - [Bộ công cụ Giả lập Test Harness (CAN Sim, SECC Sim, OCPP Sim)](05_OPERATIONS_AND_MAINTENANCE/TEST_SIMULATORS_GUIDE.md)
-   - [Báo cáo Đánh giá Sẵn sàng Thương mại hóa](05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md)
+   - [Báo cáo Đánh giá Sẵn sàng Thương mại hóa Toàn hệ thống](05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md)
 9. **Quy chế Đồng bộ Tài liệu Bắt buộc:** [DOCS_SYNC_POLICY.md](DOCS_SYNC_POLICY.md)
 
 ---
