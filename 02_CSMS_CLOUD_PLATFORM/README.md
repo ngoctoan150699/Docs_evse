@@ -59,7 +59,6 @@ Giao diện quản trị trung tâm hỗ trợ song ngữ (**Tiếng Việt / En
 
 1. [OCPP_1_6J_SPECIFICATION.md](OCPP_1_6J_SPECIFICATION.md): Đặc tả giao thức OCPP 1.6J JSON-RPC, Core Profile và Smart Charging.
 2. [DATABASE_AND_OPERATIONS.md](DATABASE_AND_OPERATIONS.md): Thiết kế CSDL PostgreSQL, TimescaleDB, sao lưu, phục hồi và nén dữ liệu.
-3. [SEPAY_PAYMENT_INTEGRATION.md](SEPAY_PAYMENT_INTEGRATION.md): Cơ chế Webhook IPN nhận biến động số dư VietQR và cộng tiền tự động.
-
+3. [SEPAY_PAYMENT_INTEGRATION.md](SEPAY_PAYMENT_INTEGRATION.md) (hoặc [sepay-payment.md](sepay-payment.md)): **Toàn văn đặc tả kỹ thuật 21 chương tích hợp cổng thanh toán SePay**: Cơ chế Webhook IPN thời gian thực, xác thực bảo mật HMAC-SHA256 & IP Whitelist, kiến trúc sổ cái kép Ledger PostgreSQL, chống trùng lặp Idempotency, engine đối soát tự động và quy trình hoàn tiền.
 4. [CSMS_REST_API_SPECIFICATION.md](CSMS_REST_API_SPECIFICATION.md): Đặc tả chi tiết toàn bộ danh mục RESTful API (Auth, Mobile Driver, CSMS Admin, OCPP Commands, SePay Webhook).
-5. [OPERATOR_ADMIN_USER_MANUAL.md](OPERATOR_ADMIN_USER_MANUAL.md): Sổ tay hướng dẫn vận hành và xử trị sự cố dành cho Quản trị viên & Kỹ thuật viên CSMS Cloud. Đặc tả chi tiết toàn bộ danh mục RESTful API (Auth, Mobile Driver, CSMS Admin, OCPP Commands, SePay Webhook).
+5. [OPERATOR_ADMIN_USER_MANUAL.md](OPERATOR_ADMIN_USER_MANUAL.md): Sổ tay hướng dẫn vận hành và xử trị sự cố dành cho Quản trị viên & Kỹ thuật viên CSMS Cloud.
