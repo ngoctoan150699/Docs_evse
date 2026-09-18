@@ -145,6 +145,7 @@ flowchart TD
    - [Cẩm nang Triển khai Hạ tầng Máy chủ Docker Compose](05_OPERATIONS_AND_MAINTENANCE/DEPLOYMENT_GUIDE.md)
    - [Bộ công cụ Giả lập Test Harness (CAN Sim, SECC Sim, OCPP Sim)](05_OPERATIONS_AND_MAINTENANCE/TEST_SIMULATORS_GUIDE.md)
    - [Kế hoạch Kiểm thử Tuân thủ Chuẩn OCTT (Open Charge Alliance)](05_OPERATIONS_AND_MAINTENANCE/OCPP_OCTT_COMPLIANCE_TEST_PLAN.md)
+   - [Báo cáo Kiểm thử Tự động Tuân thủ OCPP 1.6J (36/36 PASS)](05_OPERATIONS_AND_MAINTENANCE/OCPP_AUTO_TEST_COMPLIANCE_REPORT.md)
    - [Báo cáo Đánh giá Sẵn sàng Thương mại hóa Toàn hệ thống](05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md)
 9. **Quy chế Đồng bộ Tài liệu Bắt buộc:** [DOCS_SYNC_POLICY.md](DOCS_SYNC_POLICY.md)
 
