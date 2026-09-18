@@ -99,6 +99,7 @@ flowchart TD
 ### 3.3. Dành cho Kỹ sư Máy chủ & Cloud (Backend & DevOps Engineers):
 - Đọc [02_CSMS_CLOUD_PLATFORM/README.md](02_CSMS_CLOUD_PLATFORM/README.md): Kiến trúc microservices Go và Next.js Admin UI.
 - Đọc [02_CSMS_CLOUD_PLATFORM/OCPP_1_6J_SPECIFICATION.md](02_CSMS_CLOUD_PLATFORM/OCPP_1_6J_SPECIFICATION.md): Đặc tả giao thức OCPP 1.6J và các bản tin Core Profile.
+- Đọc [02_CSMS_CLOUD_PLATFORM/AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md](02_CSMS_CLOUD_PLATFORM/AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md): **Đặc tả chi tiết API & kiến trúc cấu hình AutoCharge (Cắm là Sạc qua EVCCID/MAC)**: Cơ chế bắt tay PLC DIN 70121/ISO 15118, luồng nhận diện Zero-Touch, danh mục API Mobile/Admin/Settings và Kill-switch toàn hệ thống.
 - Đọc [02_CSMS_CLOUD_PLATFORM/DATABASE_AND_OPERATIONS.md](02_CSMS_CLOUD_PLATFORM/DATABASE_AND_OPERATIONS.md): Thiết kế CSDL PostgreSQL, TimescaleDB, sao lưu và dọn dẹp dữ liệu.
 - Đọc [02_CSMS_CLOUD_PLATFORM/SEPAY_PAYMENT_INTEGRATION.md](02_CSMS_CLOUD_PLATFORM/SEPAY_PAYMENT_INTEGRATION.md) (hoặc [`sepay-payment.md`](02_CSMS_CLOUD_PLATFORM/sepay-payment.md)): **Toàn văn đặc tả 21 chương tích hợp thanh toán SePay VietQR**, xác thực chữ ký HMAC-SHA256, kiến trúc sổ cái kép chống gian lận tài chính và quy trình đối soát tự động.
 - Đọc [02_CSMS_CLOUD_PLATFORM/OPERATOR_ADMIN_USER_MANUAL.md](02_CSMS_CLOUD_PLATFORM/OPERATOR_ADMIN_USER_MANUAL.md): Sổ tay hướng dẫn vận hành trạm và xử lý sự cố cho Quản trị viên CSMS.
@@ -127,6 +128,7 @@ flowchart TD
    - [Cẩm nang Biên dịch, Nạp Flash & Headless Test](01_EMBEDDED_FIRMWARE/BUILD_AND_FLASH_GUIDE.md)
 5. **Phân hệ Máy chủ Đám mây (CSMS Cloud Platform):** [02_CSMS_CLOUD_PLATFORM/README.md](02_CSMS_CLOUD_PLATFORM/README.md)
    - [Đặc tả giao thức OCPP 1.6J](02_CSMS_CLOUD_PLATFORM/OCPP_1_6J_SPECIFICATION.md)
+   - [Đặc tả Chi tiết API & Kiến trúc Cấu hình AutoCharge (Cắm là Sạc qua EVCCID/MAC)](02_CSMS_CLOUD_PLATFORM/AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md)
    - [Thiết kế CSDL & Vận hành Backup/Retention](02_CSMS_CLOUD_PLATFORM/DATABASE_AND_OPERATIONS.md)
    - [Tích hợp Cổng thanh toán SePay VietQR Toàn diện (21 chương)](02_CSMS_CLOUD_PLATFORM/SEPAY_PAYMENT_INTEGRATION.md) (hoặc [sepay-payment.md](02_CSMS_CLOUD_PLATFORM/sepay-payment.md))
    - [Đặc tả Toàn bộ RESTful API Máy chủ CSMS](02_CSMS_CLOUD_PLATFORM/CSMS_REST_API_SPECIFICATION.md)
