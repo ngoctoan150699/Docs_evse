@@ -231,4 +231,4 @@ Báo cáo nghiệm thu kỹ thuật sau khi hoàn tất đợt kiểm thử OCTT
 4. **Kết luận & Trạng thái**: Đạt tiêu chuẩn **"OCTT Verified"**, sẵn sàng nộp hồ sơ đăng ký đánh giá chứng nhận chính thức tại Phòng Thử nghiệm Ủy thác của Open Charge Alliance.
 
 ---
-*Kế hoạch kiểm thử này được ban hành bởi Ban Công nghệ & Tự động hóa THACO EVSE. Nghiêm cấm sửa đổi quy trình kiểm định khi chưa có phê duyệt của Trưởng ban Kỹ thuật.*
+*Kế hoạch kiểm thử này được ban hành bởi Phòng thiết kế điện tử - Trung tâm R&D THACO INDUSTRIES. Nghiêm cấm sửa đổi quy trình kiểm định khi chưa có phê duyệt của Phòng thiết kế điện tử - Trung tâm R&D THACO INDUSTRIES.*

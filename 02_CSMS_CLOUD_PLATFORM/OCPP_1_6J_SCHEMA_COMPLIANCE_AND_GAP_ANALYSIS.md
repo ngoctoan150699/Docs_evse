@@ -274,7 +274,7 @@ Trong mỗi phần tử của mảng `sampledValue`:
    - Chuyển việc lưu trữ danh sách thẻ từ Flash nội F429 sang chip SPI Flash 8MB hoặc thẻ nhớ SD trên bo mạch để nâng dung lượng lưu trữ từ 20 thẻ lên **10,000 thẻ RFID**, phục vụ đầy đủ nhu cầu sạc ngoại tuyến cho các doanh nghiệp vận tải.
 
 ---
-*Tài liệu đối soát này được phát hành bởi Đội ngũ Phát triển Phần mềm Nhúng & Cloud Platform THACO EVSE. Mọi trích dẫn tiêu chuẩn đều có thể kiểm chứng độc lập trên cổng thông tin Open Charge Alliance.*
+*Tài liệu đối soát này được phát hành bởi Phòng thiết kế điện tử - Trung tâm R&D THACO INDUSTRIES. Mọi trích dẫn tiêu chuẩn đều có thể kiểm chứng độc lập trên cổng thông tin Open Charge Alliance.*
 
 
 ---
@@ -876,3 +876,6 @@ Phần này cung cấp bảng đối chiếu song song cấu trúc JSON-RPC th�
 | `vendorId` | Bắt buộc (M) | **Có** | `"EVSE_H743"` | Định danh phân hệ phần cứng trạm. |
 | `messageId` | Tùy chọn (O) | **Có** | `"VehicleIdentity"` | Định danh thông điệp nhận dạng xe. |
 | `data` | Tùy chọn (O) | **Có** | JSON string (`vin`, `evccId`, `emaid`) | Đọc từ SECC ISO 15118 qua CAN H743. |
+
+---
+*Tài liệu đối soát kỹ thuật này được quản lý và phát hành bởi Phòng thiết kế điện tử - Trung tâm R&D THACO INDUSTRIES.*

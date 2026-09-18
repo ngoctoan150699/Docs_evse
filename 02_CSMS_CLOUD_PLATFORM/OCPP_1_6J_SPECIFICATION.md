@@ -1188,4 +1188,4 @@ websocat -H="Authorization: Basic RVZTRV9JTVRfMDE6VEhBQ09AQXV0aEtleTIwMjY=" \
    ```
 
 ---
-*Tài liệu này được biên soạn độc quyền cho Hệ thống Quản trị & Vận hành Trạm Sạc Xe Điện THACO EVSE. Nghiêm cấm sao chép hoặc phân phối khi chưa có sự chấp thuận của Ban Công nghệ Thông tin & Tự động hóa THACO.*
+*Tài liệu này được biên soạn độc quyền bởi Phòng thiết kế điện tử - Trung tâm R&D THACO INDUSTRIES cho Hệ thống Quản trị & Vận hành Trạm Sạc Xe Điện THACO EVSE. Nghiêm cấm sao chép hoặc phân phối khi chưa có sự chấp thuận của Phòng thiết kế điện tử - Trung tâm R&D THACO INDUSTRIES.*
