@@ -63,3 +63,5 @@ Giao diện quản trị trung tâm hỗ trợ song ngữ (**Tiếng Việt / En
 4. [CSMS_REST_API_SPECIFICATION.md](CSMS_REST_API_SPECIFICATION.md): Đặc tả chi tiết toàn bộ danh mục RESTful API (Auth, Mobile Driver, CSMS Admin, OCPP Commands, SePay Webhook).
 5. [OPERATOR_ADMIN_USER_MANUAL.md](OPERATOR_ADMIN_USER_MANUAL.md): Sổ tay hướng dẫn vận hành và xử trị sự cố dành cho Quản trị viên & Kỹ thuật viên CSMS Cloud.
 6. [OCPP_1_6J_SCHEMA_COMPLIANCE_AND_GAP_ANALYSIS.md](OCPP_1_6J_SCHEMA_COMPLIANCE_AND_GAP_ANALYSIS.md): **Bảng đối soát cấu trúc cụ thể từng bản tin tiêu chuẩn OCA OCPP 1.6J với dự án THACO EVSE**: Nguồn dẫn chứng OCA, so sánh field-by-field, nguyên nhân lược bỏ trường tùy chọn trên firmware nhúng STM32F429 (Zero-malloc) và kế hoạch nâng cấp.
+
+7. [AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md](AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md): **Đặc tả chi tiết API & Kiến trúc cấu hình tính năng AutoCharge (Cắm là Sạc qua EVCCID / MAC)**: Cơ chế bắt tay PLC DIN 70121 / ISO 15118, quy trình Zero-Touch Auto Detection, danh mục API Mobile/Admin/Settings, bản tin OCPP DataTransfer/Authorize, bảo mật Whitelist độc bản theo Tenant và Kill-switch khẩn cấp.
