@@ -43,3 +43,38 @@
 | **30010** | `0x0009` | `MODULE_TEMP_MAX` | 0.1 ℃ | `0 - 1500` | Nhiệt độ cao nhất của khối module nguồn AcePower |
 | **30011** | `0x000A` | `GUN_TEMPERATURE` | 0.1 ℃ | `0 - 1500` | Nhiệt độ cảm biến đầu súng sạc DC |
 | **30012** | `0x000B` | `ACTIVE_FIRMWARE_BANK`| Enum | `1`: Bank 1, `2`: Bank 2| Bank Flash hiện tại đang chạy code trên STM32H743 |
+
+---
+
+## 3. BẢNG THANH GHI ĐỊNH DANH PHẦN CỨNG GỐC (HARDWARE STATION IDENTITY REGISTERS)
+*Vùng thanh ghi hệ thống `0x0018`..`0x001E` (Input Registers - FC `0x04`)*
+
+| Địa chỉ (PLC) | Offset (Hex) | Tên thanh ghi | Đơn vị | Dải giá trị | Ý nghĩa và mô tả chức năng |
+| :---: | :---: | :--- | :---: | :---: | :--- |
+| **30025** | `0x0018` | `SYS_IDENTITY_VERSION` | Enum | `1` | Phiên bản kiến trúc định danh phần cứng (Schema v1) |
+| **30026** | `0x0019` | `SYS_H7_UID_W0_H` | Hex Word | `0x0000 - 0xFFFF` | 16-bit cao của Word 0 (STM32H743 UID Register `0x1FF1E800`) |
+| **30027** | `0x001A` | `SYS_H7_UID_W0_L` | Hex Word | `0x0000 - 0xFFFF` | 16-bit thấp của Word 0 (STM32H743 UID Register `0x1FF1E800`) |
+| **30028** | `0x001B` | `SYS_H7_UID_W1_H` | Hex Word | `0x0000 - 0xFFFF` | 16-bit cao của Word 1 (STM32H743 UID Register `0x1FF1E804`) |
+| **30029** | `0x001C` | `SYS_H7_UID_W1_L` | Hex Word | `0x0000 - 0xFFFF` | 16-bit thấp của Word 1 (STM32H743 UID Register `0x1FF1E804`) |
+| **30030** | `0x001D` | `SYS_H7_UID_W2_H` | Hex Word | `0x0000 - 0xFFFF` | 16-bit cao của Word 2 (STM32H743 UID Register `0x1FF1E808`) |
+| **30031** | `0x001E` | `SYS_H7_UID_W2_L` | Hex Word | `0x0000 - 0xFFFF` | 16-bit thấp của Word 2 (STM32H743 UID Register `0x1FF1E808`) |
+
+> **Nguyên tắc định danh duy nhất (Single Source of Truth):**
+> - Mã 96-bit UID đọc trực tiếp từ thanh ghi phần cứng H743 (`0x1FF1E800`).
+> - Định tuyến và định danh CSMS/OTA: `EVSE_<24_HEX_CHARS>`.
+> - Tên hiển thị người dùng (Alias): `EVSE_%08lX` tính bằng CRC32 (ISO-HDLC) trên 12 byte UID.
+> - Tuyệt đối không fallback về tên tĩnh như `EVSE_T002`.
+
+---
+
+## 4. BẢNG THANH GHI PHIÊN BẢN FIRMWARE & LIÊN KẾT TRẠM (FIRMWARE & BINDING REGISTERS)
+*Vùng thanh ghi Business mở rộng `0x0516`..`0x051A` (Holding/Input Registers - FC `0x03` / `0x04`)*
+
+| Địa chỉ (PLC) | Offset (Hex) | Tên thanh ghi | Đơn vị | Dải giá trị | Ý nghĩa và mô tả chức năng |
+| :---: | :---: | :--- | :---: | :---: | :--- |
+| **41303** | `0x0516` | `F4_FW_VERSION_MAJ_MIN` | Pack | `(Maj << 8) \| Min` | Phiên bản Major & Minor của Firmware STM32F429 |
+| **41304** | `0x0517` | `F4_FW_VERSION_PATCH` | Số | `0 - 65535` | Phiên bản Patch của Firmware STM32F429 |
+| **41305** | `0x0518` | `ESP32_FW_VERSION_MAJ_MIN` | Pack | `(Maj << 8) \| Min` | Phiên bản Major & Minor của Firmware ESP32-C6 |
+| **41306** | `0x0519` | `ESP32_FW_VERSION_PATCH` | Số | `0 - 65535` | Phiên bản Patch của Firmware ESP32-C6 |
+| **41307** | `0x051A` | `F4_BINDING_STATUS` | Enum | `0`: Wait, `1`: Bound, `2`: Mismatch | Trạng thái ghép nối phần cứng F4/ESP32 với H7 |
+
