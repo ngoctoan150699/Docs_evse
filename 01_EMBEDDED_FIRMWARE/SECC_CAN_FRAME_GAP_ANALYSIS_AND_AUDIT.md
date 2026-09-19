@@ -141,11 +141,11 @@
 | `SeccChgStopReason` | 8 | 7 | unsigned | `o->stop_reason = get_bits_le(d, 8, 7)` | **MATCH** |
 | `SeccChgStopStage` | 15 | 5 | unsigned | `o->stop_stage = get_bits_le(d, 15, 5)` | **MATCH** |
 | `CcsSelectedProtocol` | 20 | 4 | unsigned | `o->selected_protocol = get_bits_le(d, 20, 4)` | **MATCH** |
-| `CcsSelectedServiceId` | 24 | 6 | unsigned | `o->selected_service_id = get_bits_le(d, 24, 6)` | ⚠️ **LỆCH COMMENT**: Xem mục 3.2 |
-| `CcsSelectedPayment` | 30 | 2 | unsigned | `o->selected_payment = get_bits_le(d, 30, 2)` | ⚠️ **LỆCH COMMENT**: Xem mục 3.2 |
-| `CcsSelectedControlMode` | 32 | 2 | unsigned | `o->selected_control_mode = get_bits_le(d, 32, 2)` | ⚠️ **LỆCH COMMENT**: Xem mục 3.2 |
+| `CcsSelectedServiceId` | 24 | 6 | unsigned | `o->selected_service_id = get_bits_le(d, 24, 6)` | **MATCH** *(Đã chuẩn hóa comment & enum `CcsSelectedServiceId_e`: 1=AC, 2=DC)* |
+| `CcsSelectedPayment` | 30 | 2 | unsigned | `o->selected_payment = get_bits_le(d, 30, 2)` | **MATCH** *(Đã chuẩn hóa comment & enum `CcsSelectedPayment_e`: 1=PnC, 2=EIM)* |
+| `CcsSelectedControlMode` | 32 | 2 | unsigned | `o->selected_control_mode = get_bits_le(d, 32, 2)` | **MATCH** *(Đã chuẩn hóa comment & enum `CcsSelectedControlMode_e`: 1=Schedule, 2=Dynamic)* |
 | `CcsSelectedMobiNdsMode` | 34 | 2 | unsigned | `o->selected_mobi_mode = get_bits_le(d, 34, 2)` | **MATCH** |
-| `SeccDoFunction` | 36 | 4 | unsigned | *Chưa giải mã trong C* | ❌ **CHƯA ĐƯỢC GIẢI MÃ**: Xem mục 3.1 |
+| `SeccDoFunction` | 36 | 4 | unsigned | `o->secc_do_function = get_bits_le(d, 36, 4)` | **MATCH** *(Đã bổ sung giải mã bit 36..39 & enum `SeccDoFunction_e`)* |
 | `SeccChgSessionStop` | 40 | 2 | unsigned | `o->session_stop = get_bits_le(d, 40, 2)` | **MATCH** |
 | *Reserved* | 42 | 8 | unsigned | Bỏ qua (không dùng) | **MATCH** |
 | `SeccTroubleType` | 50 | 6 | unsigned | `o->trouble_type = get_bits_le(d, 50, 6)` | **MATCH** |
@@ -164,11 +164,11 @@
 | `SeccCpVoltage` | 24 | 8 | **signed** | `o->cp_voltage_dV = (int8_t)get_bits_le(d, 24, 8)` | **MATCH** (Scale 0.1V) |
 | `SeccCpDuty` | 32 | 8 | unsigned | `o->cp_duty_pct = get_bits_le(d, 32, 8)` | **MATCH** (0..100%) |
 | `SeccPpVoltage` | 40 | 8 | unsigned | `o->pp_voltage_dV = get_bits_le(d, 40, 8)` | **MATCH** (Scale 0.1V) |
-| `SeccSlacQuality` | 48 | 2 | unsigned | `o->slac_quality = get_bits_le(d, 48, 2)` | ⚠️ **LỆCH COMMENT**: Xem mục 3.2 |
+| `SeccSlacQuality` | 48 | 2 | unsigned | `o->slac_quality = get_bits_le(d, 48, 2)` | **MATCH** *(Đã chuẩn hóa comment & enum `SeccSlacQuality_e`: 0=Xlnt, 1=Good, 2=Norm, 3=Poor)* |
 | `SeccSlacAvgAtten` | 50 | 6 | unsigned | `o->slac_avg_atten = get_bits_le(d, 50, 6)` | **MATCH** (0..63 dB) |
 | `PlcLinkStatus` | 56 | 2 | unsigned | `o->plc_link_status = get_bits_le(d, 56, 2)` | **MATCH** (1 = Linked) |
-| `SetKeyRequest` | 58 | 2 | unsigned | *Chưa giải mã trong C* | ❌ **CHƯA ĐƯỢC GIẢI MÃ**: Xem mục 3.1 |
-| `SetKeyResult` | 60 | 2 | unsigned | *Chưa giải mã trong C* | ❌ **CHƯA ĐƯỢC GIẢI MÃ**: Xem mục 3.1 |
+| `SetKeyRequest` | 58 | 2 | unsigned | `o->set_key_request = get_bits_le(d, 58, 2)` | **MATCH** *(Đã bổ sung giải mã bit 58..59 & enum `SetKeyRequest_e`)* |
+| `SetKeyResult` | 60 | 2 | unsigned | `o->set_key_result = get_bits_le(d, 60, 2)` | **MATCH** *(Đã bổ sung giải mã bit 60..61 & enum `SetKeyResult_e`)* |
 | *Reserved* | 62 | 2 | unsigned | Bỏ qua | **MATCH** |
 
 ---
@@ -295,28 +295,28 @@
 
 Qua đối soát kỹ lưỡng giữa file Excel Matrix v1.1.0 và mã nguồn C nhúng của STM32H7, phát hiện **4 nhóm sai khác cụ thể**:
 
-### 3.1. Nhóm 1: Các tín hiệu trong Excel Matrix nhưng chưa được giải mã trong C Library
+### 3.1. Nhóm 1: Các tín hiệu trong Excel Matrix trước đây chưa được giải mã (ĐÃ KHẮC PHỤC HOÀN TẤT)
 
 1. **Tín hiệu `SeccDoFunction` trong bản tin `SECC_Status` (`0x18B056F4`):**
    - *Vị trí trong Excel:* Start Bit 36, độ dài 4 bits (`0x0: Not used`, `0x1: Trigger as CP lost`).
-   - *Hiện trạng C:* Hàm `decode_secc_status()` nhảy từ bit 35 (`selected_mobi_mode`) lên thẳng bit 40 (`session_stop`), bỏ qua 4 bit này.
-   - *Mức độ ảnh hưởng:* **THẤP (LOW)**. Đây là cờ cấu hình chức năng output chân GPIO mở rộng của bo mạch SECC, không ảnh hưởng trực tiếp đến chu trình sạc DC thông thường.
+   - *Tình trạng trước đây:* Hàm `decode_secc_status()` nhảy từ bit 35 (`selected_mobi_mode`) lên thẳng bit 40 (`session_stop`), bỏ qua 4 bit này.
+   - *Trạng thái hiện tại:* **ĐÃ KHẮC PHỤC HOÀN TẤT**. Đã bổ sung enum `SeccDoFunction_e`, trường `secc_do_function` trong `SECC_Status_t` và lệnh giải mã `o->secc_do_function = (uint8_t)get_bits_le(d, 36, 4)`.
 2. **Tín hiệu `SetKeyRequest` và `SetKeyResult` trong bản tin `SECC_PlcModeBasicInfo` (`0x18B156F4`):**
    - *Vị trí trong Excel:* 
      * `SetKeyRequest`: Start Bit 58, 2 bits (`0: NoRequest`, `1: Request`).
      * `SetKeyResult`: Start Bit 60, 2 bits (`0: Default`, `1: OK`, `2: Failed`).
-   - *Hiện trạng C:* Hàm `decode_plc_basic()` chỉ giải mã tới bit 56..57 (`plc_link_status`), bỏ qua bit 58..61.
-   - *Mức độ ảnh hưởng:* **THẤP (LOW)**. Hai cờ này dùng cho quá trình bắt tay bảo mật Network Membership Key (NMK) của modem PLC HomePlug GreenPHY. SECC tự xử lý nội bộ và báo kết quả link qua `PlcLinkStatus`.
+   - *Tình trạng trước đây:* Hàm `decode_plc_basic()` chỉ giải mã tới bit 56..57 (`plc_link_status`), bỏ qua bit 58..61.
+   - *Trạng thái hiện tại:* **ĐÃ KHẮC PHỤC HOÀN TẤT**. Đã bổ sung enum `SetKeyRequest_e`, `SetKeyResult_e`, các trường trong `SECC_PlcModeBasicInfo_t` và lệnh giải mã `o->set_key_request = (uint8_t)get_bits_le(d, 58, 2)`, `o->set_key_result = (uint8_t)get_bits_le(d, 60, 2)`.
 
 ---
 
-### 3.2. Nhóm 2: Sai lệch Ghi chú Enum trong file Header `ccu_secc_can.h`
+### 3.2. Nhóm 2: Sai lệch Ghi chú Enum trong file Header cũ (ĐÃ KHẮC PHỤC HOÀN TẤT)
 
-Các trường dưới đây được hàm `get_bits_le()` giải mã đúng giá trị số nguyên nhị phân, nhưng **comment mô tả trong struct `SECC_Status_t` và `SECC_PlcModeBasicInfo_t` bị lệch so với Excel**:
+Trước đây các trường này được hàm `get_bits_le()` giải mã đúng giá trị số nguyên nhị phân, nhưng **comment mô tả trong struct cũ bị lệch so với Excel**. Hiện tại **toàn bộ enum chuẩn và comment đã được cập nhật chính xác 100%**:
 
 1. **`selected_service_id` (Bit 24..29 của `SECC_Status`):**
-   - *Comment trong file C (line 311):* `/* 0=none, 1=DC, 2=AC, 3=DC+BPT */` (Bị đảo giữa AC và DC).
-   - *Định nghĩa chuẩn trong Excel Matrix v1.1.0:*
+   - *Comment trong file C cũ:* `/* 0=none, 1=DC, 2=AC, 3=DC+BPT */` (Bị đảo giữa AC và DC).
+   - *Hiện tại:* Đã bổ sung enum chuẩn `CcsSelectedServiceId_e`:
      * `0x0`: Reserved
      * `0x1`: **AC Charging**
      * `0x2`: **DC Charging**
@@ -326,20 +326,20 @@ Các trường dưới đây được hàm `get_bits_le()` giải mã đúng gi�
      * `0x6`: DC_BPT
      * `0x7`: DC_ACDP_BPT
 2. **`selected_payment` (Bit 30..31 của `SECC_Status`):**
-   - *Comment trong file C (line 312):* `/* 0=none, 1=free, 2=e-mobility account, 3=pnc */`
-   - *Định nghĩa chuẩn trong Excel Matrix v1.1.0:*
+   - *Comment trong file C cũ:* `/* 0=none, 1=free, 2=e-mobility account, 3=pnc */`
+   - *Hiện tại:* Đã bổ sung enum chuẩn `CcsSelectedPayment_e`:
      * `0x0`: Default
      * `0x1`: **PnC (Plug and Charge)**
      * `0x2`: **EIM (External Identification Means - App/RFID/QR)**
 3. **`selected_control_mode` (Bit 32..33 của `SECC_Status`):**
-   - *Comment trong file C (line 313):* `/* 0=none, 1=simple, 2=schedule, 3=dynamic */`
-   - *Định nghĩa chuẩn trong Excel Matrix v1.1.0:*
+   - *Comment trong file C cũ:* `/* 0=none, 1=simple, 2=schedule, 3=dynamic */`
+   - *Hiện tại:* Đã bổ sung enum chuẩn `CcsSelectedControlMode_e`:
      * `0x0`: Default
      * `0x1`: **Schedule Mode**
      * `0x2`: **Dynamic Mode**
 4. **`slac_quality` (Bit 48..49 của `SECC_PlcModeBasicInfo`):**
-   - *Comment trong file C (line 327):* `/* 0..100% */`
-   - *Định nghĩa chuẩn trong Excel Matrix v1.1.0:* Là trường enum 2-bit phân loại mức suy hao tín hiệu:
+   - *Comment trong file C cũ:* `/* 0..100% */`
+   - *Hiện tại:* Đã bổ sung enum chuẩn `SeccSlacQuality_e`:
      * `0`: **SlacQuality_Xlnt** (Suy hao $\le 30\text{ dB}$)
      * `1`: **SlacQuality_Good** ($30 < \text{Suy hao} \le 35\text{ dB}$)
      * `2`: **SlacQuality_Norm** ($35 < \text{Suy hao} \le 40\text{ dB}$)
