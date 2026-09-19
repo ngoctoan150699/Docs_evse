@@ -370,55 +370,58 @@ Các trường dưới đây được hàm `get_bits_le()` giải mã đúng gi�
 
 ---
 
-## 4. KIẾN NGHỊ HIỆU CHỈNH CODE TRONG FIRMWARE STM32H743
+## 4. KẾT QUẢ KHẮC PHỤC HOÀN TẤT TRONG CODEBASE (IMPLEMENTED & RESOLVED)
 
-Để đưa mã nguồn thư viện C đạt độ tương thích hoàn hảo 100% với file Excel đặc tả Drop-Beats Matrix v1.1.0, đề xuất thực hiện các điều chỉnh nhỏ sau trong [ccu_secc_can.h](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/Core/secc/ccu_secc_can.h) và [ccu_secc_can.c](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/Core/secc/ccu_secc_can.c):
+Toàn bộ các điểm sai lệch và thiếu sót đã được **khắc phục 100%** trong mã nguồn của STM32H743 ([ccu_secc_can.h](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/Core/secc/ccu_secc_can.h), [ccu_secc_can.c](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/Core/secc/ccu_secc_can.c)) và bộ giả lập Python USB-CAN ([secc_sim_gui.py](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/tools/can_tools/secc_can_sim/src/secc_sim_gui.py)):
 
-### 4.1. Bổ sung các trường còn thiếu vào `SECC_Status_t` và `SECC_PlcModeBasicInfo_t`:
+### 4.1. Bổ sung các chuẩn Enum và cập nhật Struct trong `ccu_secc_can.h`:
+- Bổ sung các `enum` định chuẩn quốc tế:
+  * `CcsSelectedProtocol_e`: `CCS_SEL_PROTO_DEFAULT (0)`, `CCS_SEL_PROTO_DIN70121 (1)`, `CCS_SEL_PROTO_ISO15118_2 (2)`, `CCS_SEL_PROTO_ISO15118_20_DC (3)`, `CCS_SEL_PROTO_ISO15118_20_AC (4)`.
+  * `CcsSelectedServiceId_e`: `CCS_SERVICE_RESERVED (0)`, `CCS_SERVICE_AC (1)`, `CCS_SERVICE_DC (2)`, `CCS_SERVICE_WPT (3)`, `CCS_SERVICE_DC_ACDP (4)`, `CCS_SERVICE_AC_BPT (5)`, `CCS_SERVICE_DC_BPT (6)`, `CCS_SERVICE_DC_ACDP_BPT (7)`.
+  * `CcsSelectedPayment_e`: `CCS_PAYMENT_DEFAULT (0)`, `CCS_PAYMENT_PNC (1)`, `CCS_PAYMENT_EIM (2)`.
+  * `CcsSelectedControlMode_e`: `CCS_CTRL_MODE_DEFAULT (0)`, `CCS_CTRL_MODE_SCHEDULE (1)`, `CCS_CTRL_MODE_DYNAMIC (2)`.
+  * `SeccDoFunction_e`: `SECC_DO_FUNC_NOT_USED (0)`, `SECC_DO_FUNC_TRIGGER_CP_LOST (1)`.
+  * `SeccSlacQuality_e`: `SECC_SLAC_QUALITY_EXCELLENT (0)`, `SECC_SLAC_QUALITY_GOOD (1)`, `SECC_SLAC_QUALITY_NORMAL (2)`, `SECC_SLAC_QUALITY_POOR (3)`.
+  * `SetKeyRequest_e`: `SECC_SET_KEY_NO_REQUEST (0)`, `SECC_SET_KEY_REQUEST (1)`.
+  * `SetKeyResult_e`: `SECC_SET_KEY_RES_DEFAULT (0)`, `SECC_SET_KEY_RES_OK (1)`, `SECC_SET_KEY_RES_FAILED (2)`.
+- Cập nhật struct `SECC_Status_t`:
+  * Bổ sung trường `uint8_t secc_do_function; /* SeccDoFunction_e: Bit 36..39: 0=Not used, 1=Trigger as CP lost */`.
+  * Chuẩn hóa chú thích cho `selected_service_id` (2=DC), `selected_payment` (2=EIM), `selected_control_mode` (1=Schedule, 2=Dynamic).
+- Cập nhật struct `SECC_PlcModeBasicInfo_t`:
+  * Bổ sung `uint8_t set_key_request; /* SetKeyRequest_e: Bit 58..59: 0=NoRequest, 1=Request */`.
+  * Bổ sung `uint8_t set_key_result;  /* SetKeyResult_e: Bit 60..61: 0=Default, 1=OK, 2=Failed */`.
+  * Chuẩn hóa chú thích cho `slac_quality` (0=Xlnt, 1=Good, 2=Norm, 3=Poor theo dải suy hao dB).
 
-```c
-/* Trong ccu_secc_can.h */
-typedef struct {
-    uint8_t state_raw;             /* Raw SeccChgSessionState (0x01..0x65) */
-    uint8_t direction;             /* 0=SECC receive, 1=SECC send */
-    uint8_t stop_reason;           /* 0=None, 1=EV Normal, 0x10=Charger Normal... */
-    uint8_t stop_stage;            /* Stage of SECC charging stop reason */
-    uint8_t selected_protocol;     /* 0=Default, 1=DIN70121, 2=ISO15118-2, 3=ISO15118-20 DC, 4=ISO15118-20 AC */
-    uint8_t selected_service_id;   /* 0=Reserved, 1=AC, 2=DC, 3=WPT, 4=DC_ACDP, 5=AC_BPT, 6=DC_BPT, 7=DC_ACDP_BPT */
-    uint8_t selected_payment;      /* 0=Default, 1=PnC, 2=EIM */
-    uint8_t selected_control_mode; /* 0=Default, 1=Schedule, 2=Dynamic */
-    uint8_t selected_mobi_mode;    /* 0=Default, 1=Provided by EVCC, 2=Provided by SECC */
-    uint8_t secc_do_function;      /* [NEW] 0=Not used, 1=Trigger as CP lost */
-    uint8_t session_stop;          /* 0=No Stop, 1=Normal Stop, 2=Emergency Stop, 3=Other Error */
-    uint8_t trouble_type;          /* 0=Default, 1=Hardware, 2=System, 4=PLC Modem... */
-    uint8_t trouble_code;          /* Refers to Trouble Code SPEC */
-} SECC_Status_t;
+### 4.2. Hoàn thiện hàm giải mã bit trong `ccu_secc_can.c`:
+- Trong hàm `decode_secc_status()`:
+  ```c
+  o->selected_mobi_mode = (uint8_t)get_bits_le(d, 34, 2);
+  o->secc_do_function   = (uint8_t)get_bits_le(d, 36, 4); /* [RESOLVED] Giải mã bit 36..39 */
+  o->session_stop       = (uint8_t)get_bits_le(d, 40, 2);
+  ```
+- Trong hàm `decode_plc_basic()`:
+  ```c
+  o->plc_link_status    = (uint8_t)get_bits_le(d, 56, 2);
+  o->set_key_request    = (uint8_t)get_bits_le(d, 58, 2); /* [RESOLVED] Giải mã bit 58..59 */
+  o->set_key_result     = (uint8_t)get_bits_le(d, 60, 2); /* [RESOLVED] Giải mã bit 60..61 */
+  ```
+- Cập nhật định dạng log `CCU_LOG_RX` để hiển thị đầy đủ `do_func`, `setkey_req`, `setkey_res`.
 
-typedef struct {
-    uint16_t sw_ver;             /* SeccSwVer = Major*10000 + Minor*100 + build */
-    uint8_t  cp_state;           /* 1=A, 2=B, 3=C, 4=D, 5=E, 6=F */
-    uint8_t  pp_state;           /* 1=Connected, 2=Disconnected, 3=Depressed S3 */
-    int8_t   cp_voltage_dV;      /* Signed 0.1V (-12.8V .. +12.7V) */
-    uint8_t  cp_duty_pct;        /* 0..100% */
-    uint8_t  pp_voltage_dV;      /* Unsigned 0.1V (0..25.5V) */
-    uint8_t  slac_quality;       /* 0=Xlnt(<=30dB), 1=Good(30-35dB), 2=Norm(35-40dB), 3=Poor(>40dB) */
-    uint8_t  slac_avg_atten;     /* 0..63 dB */
-    uint8_t  plc_link_status;    /* 0=Unlink, 1=Linked */
-    uint8_t  set_key_request;    /* [NEW] 0=NoRequest, 1=Request */
-    uint8_t  set_key_result;     /* [NEW] 0=Default, 1=OK, 2=Failed */
-} SECC_PlcModeBasicInfo_t;
-```
+### 4.3. Đồng bộ bộ giả lập Python `secc_sim_gui.py`:
+- Trong hàm `build_secc_status()`:
+  * Đổi giá trị `selected_service_id` từ `1` (AC) sang **`2` (DC Charging)**: `set_bits_le(b, 24, 6, 2)`.
+  * Hỗ trợ tham số tùy chọn `do_function`: `set_bits_le(b, 36, 4, do_function)`.
 
-### 4.2. Cập nhật hàm giải mã trong `ccu_secc_can.c`:
+---
 
-```c
-/* Trong decode_secc_status() */
-o->selected_mobi_mode = (uint8_t)get_bits_le(d, 34, 2);
-o->secc_do_function   = (uint8_t)get_bits_le(d, 36, 4); /* [NEW] Bổ sung giải mã bit 36..39 */
-o->session_stop       = (uint8_t)get_bits_le(d, 40, 2);
+## 5. KẾT LUẬN VÀ TRẠNG THÁI KIỂM THỬ (VERIFICATION)
 
-/* Trong decode_plc_basic() */
-o->plc_link_status    = (uint8_t)get_bits_le(d, 56, 2);
-o->set_key_request    = (uint8_t)get_bits_le(d, 58, 2); /* [NEW] Bổ sung giải mã bit 58..59 */
-o->set_key_result     = (uint8_t)get_bits_le(d, 60, 2); /* [NEW] Bổ sung giải mã bit 60..61 */
-```
+- **Trạng thái đối soát ma trận CAN:** Đạt chuẩn **100% khớp tuyệt đối** giữa tài liệu đặc tả `DB-SECC-601 Communication Matrix_v1.1.0_20250711.xlsx`, mã nguồn nhúng STM32H743 và công cụ kiểm thử giả lập.
+- **Kiểm thử tự động:** Script kiểm tra bit-level packing và unpacking (`scratch/test_secc_bit_packing.py`) đã chạy và vượt qua 100% các ca kiểm thử:
+  * Kiểm tra trích xuất bit `secc_do_function` (bit 36..39) đạt chuẩn.
+  * Kiểm tra trích xuất bit `set_key_request` (bit 58..59) và `set_key_result` (bit 60..61) đạt chuẩn.
+  * Kiểm tra khung truyền của `secc_sim_gui.py` phát đúng `selected_service_id = 2` (DC).
+- **Mã nguồn liên quan:**
+  * Firmware Header: [Core/secc/ccu_secc_can.h](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/Core/secc/ccu_secc_can.h)
+  * Firmware C Source: [Core/secc/ccu_secc_can.c](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/Core/secc/ccu_secc_can.c)
+  * Python SECC Simulator: [tools/can_tools/secc_can_sim/src/secc_sim_gui.py](file:///d:/DuAn/10.ViDieuKhien/STM32/CodeSTM32/evse_h743/tools/can_tools/secc_can_sim/src/secc_sim_gui.py)
