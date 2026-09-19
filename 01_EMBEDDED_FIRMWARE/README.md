@@ -72,8 +72,9 @@ Hệ thống trạm sạc vận hành trơn tru nhờ sự phối hợp nhịp n
 ## 4. DANH MỤC TÀI LIỆU KỸ THUẬT CHI TIẾT TRONG PHÂN HỆ
 
 1. [ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md](ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md): **Đặc tả toàn diện quy trình sạc DC ISO 15118-20 (EIM), ma trận truyền thông FDCAN2 giữa STM32H743 và DB-SECC-601, biểu đồ tuần tự 11 bước, đóng gói bit CAN và 17 mã lỗi CCU/SECC**.
-2. [INTER_MCU_COMMUNICATION_AND_REGISTERS.md](INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang toàn diện về giao thức truyền thông SPI DMA, RS485 Modbus RTU và bản đồ thanh ghi chi tiết giữa 3 vi điều khiển và màn hình HMI** (Bao gồm cơ chế Boot bất đồng bộ khi ESP32 khởi động chậm hơn, ma trận tự phục hồi khi có 1 MCU bị reset, quy trình khôi phục mạng Ethernet tự động và vận hành ngoại tuyến Offline Mode khi mất mạng).
-3. [HARDWARE_PINOUT_AND_BUSES.md](HARDWARE_PINOUT_AND_BUSES.md): Sơ đồ chân nối pinout chi tiết, thông số và ranh giới các bus SPI DMA, RS485, FDCAN.
-4. [MODBUS_REGISTER_MAP.md](MODBUS_REGISTER_MAP.md): Bảng ánh xạ thanh ghi Modbus RTU chuẩn giữa HMI, F429 và H743.
-5. [OTA_UPDATE_SPECIFICATION.md](OTA_UPDATE_SPECIFICATION.md): Đặc tả nạp firmware OTA qua Web & MQTT, cơ chế phân đoạn sub-chunking 512B và Live Dual-Bank Flash Swap.
-6. [BUILD_AND_FLASH_GUIDE.md](BUILD_AND_FLASH_GUIDE.md): Cẩm nang biên dịch (PlatformIO, CubeIDE headless) và nạp flash ST-Link CLI cho cả 3 chip.
+2. [SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md](SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md): **Báo cáo đối soát chi tiết từng bit/byte giữa file Excel đặc tả Drop-Beats Matrix v1.1.0 và thư viện C firmware STM32H743 (Chỉ ra toàn bộ điểm khớp, thiếu và lệch comment)**.
+3. [INTER_MCU_COMMUNICATION_AND_REGISTERS.md](INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang toàn diện về giao thức truyền thông SPI DMA, RS485 Modbus RTU và bản đồ thanh ghi chi tiết giữa 3 vi điều khiển và màn hình HMI** (Bao gồm cơ chế Boot bất đồng bộ khi ESP32 khởi động chậm hơn, ma trận tự phục hồi khi có 1 MCU bị reset, quy trình khôi phục mạng Ethernet tự động và vận hành ngoại tuyến Offline Mode khi mất mạng).
+4. [HARDWARE_PINOUT_AND_BUSES.md](HARDWARE_PINOUT_AND_BUSES.md): Sơ đồ chân nối pinout chi tiết, thông số và ranh giới các bus SPI DMA, RS485, FDCAN.
+5. [MODBUS_REGISTER_MAP.md](MODBUS_REGISTER_MAP.md): Bảng ánh xạ thanh ghi Modbus RTU chuẩn giữa HMI, F429 và H743.
+6. [OTA_UPDATE_SPECIFICATION.md](OTA_UPDATE_SPECIFICATION.md): Đặc tả nạp firmware OTA qua Web & MQTT, cơ chế phân đoạn sub-chunking 512B và Live Dual-Bank Flash Swap.
+7. [BUILD_AND_FLASH_GUIDE.md](BUILD_AND_FLASH_GUIDE.md): Cẩm nang biên dịch (PlatformIO, CubeIDE headless) và nạp flash ST-Link CLI cho cả 3 chip.

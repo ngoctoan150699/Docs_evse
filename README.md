@@ -93,6 +93,7 @@ flowchart TD
 ### 3.2. Dành cho Kỹ sư Lập trình Nhúng & Phần cứng (Embedded Engineers):
 - Đọc [01_EMBEDDED_FIRMWARE/README.md](01_EMBEDDED_FIRMWARE/README.md): Kiến trúc phân tán 3 chip ESP32-C6, STM32F429, STM32H743.
 - Đọc [01_EMBEDDED_FIRMWARE/ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md): **Đặc tả toàn diện quy trình sạc DC ISO 15118-20 (EIM) & Ma trận truyền thông CCU ↔ SECC (DB-SECC-601)**: Biểu đồ tuần tự 11 bước bắt tay sạc, đối soát 3 lớp (Spec Drop-Beats vs Code C vs Firmware STM32H743), ma trận đóng gói bit 14 frame CAN 250 kbps, 3 quy tắc an toàn bất biến ($I_{\text{OUT}} \le 5.0\text{A}$ ngắt contactor, Precharge $|\Delta V| \le 20\text{V}$, xả áp buồng hàn $< 20\text{V}$) và bảng tra cứu 17 mã lỗi Trouble Codes.
+- Đọc [01_EMBEDDED_FIRMWARE/SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md](01_EMBEDDED_FIRMWARE/SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md): **Báo cáo đối soát chi tiết từng bit/byte giữa file Excel đặc tả Drop-Beats Matrix v1.1.0 và thư viện C firmware STM32H743** (Chỉ ra toàn bộ điểm khớp, thiếu trường dữ liệu phụ và điểm lệch comment mô tả).
 - Đọc [01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md](01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang tương tác giữa 3 vi điều khiển và màn hình HMI**: Giao thức SPI 4 dây DMA 10MHz (Magic 0xAE53), Modbus RTU RS485 (115200 bps), bảng thanh ghi chi tiết H743, cơ chế Boot bất đồng bộ (ESP32 boot chậm hơn F4 & H7), ma trận tự phục hồi khi có 1 MCU bị reset, quy trình khôi phục mạng Ethernet tự động và cơ chế vận hành sạc ngoại tuyến (Offline Resilience) khi mất mạng.
 - Đọc [05_OPERATIONS_AND_MAINTENANCE/ELECTRICAL_SAFETY_AND_COMMISSIONING.md](05_OPERATIONS_AND_MAINTENANCE/ELECTRICAL_SAFETY_AND_COMMISSIONING.md): Tiêu chuẩn an toàn điện cao thế, nối đất PE và quy trình nghiệm thu trạm sạc.
 - Đọc [05_OPERATIONS_AND_MAINTENANCE/TROUBLESHOOTING_AND_FAULT_CODES.md](05_OPERATIONS_AND_MAINTENANCE/TROUBLESHOOTING_AND_FAULT_CODES.md): Bảng tra cứu mã lỗi và phác đồ sửa chữa trạm sạc.
@@ -123,6 +124,7 @@ flowchart TD
 3. **Sơ đồ Chu trình Nghiệp vụ Thực tế:** [SYSTEM_WORKFLOWS_AND_FLOWCHARTS.md](SYSTEM_WORKFLOWS_AND_FLOWCHARTS.md)
 4. **Phân hệ Phần cứng & Nhúng (Embedded Firmware):** [01_EMBEDDED_FIRMWARE/README.md](01_EMBEDDED_FIRMWARE/README.md)
    - [Đặc tả Quy trình Sạc DC ISO 15118-20 & Ma trận Truyền thông CCU ↔ SECC (DB-SECC-601)](01_EMBEDDED_FIRMWARE/ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md)
+   - [Báo cáo Đối soát Chi tiết Khung truyền CAN: Drop-Beats Matrix v1.1.0 vs Thư viện C STM32H7](01_EMBEDDED_FIRMWARE/SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md)
    - [Giao thức Truyền thông Liên MCU & Bản đồ Thanh ghi HMI/F4/H7](01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md)
    - [Sơ đồ chân & Các bus truyền thông](01_EMBEDDED_FIRMWARE/HARDWARE_PINOUT_AND_BUSES.md)
    - [Bảng ánh xạ thanh ghi Modbus RTU chuẩn](01_EMBEDDED_FIRMWARE/MODBUS_REGISTER_MAP.md)
