@@ -74,13 +74,15 @@ Hệ thống được thiết kế theo mô hình 5 tầng phân tán rõ ràng,
 
 ### 2.1. CHI TIẾT DANH MỤC CAN ID GIỮA STM32H743 (CCU) VÀ BỘ ĐIỀU KHIỂN SECC (250 kbps)
 
-Giao tiếp FDCAN2 giữa STM32H743 (đóng vai trò **CCU - Charge Control Unit**) và **SECC** tuân thủ chuẩn ISO 15118-20 / DIN 70121 với khung truyền **29-bit Extended CAN**:
+> 📘 **Tài liệu tham chiếu chi tiết:** Xem đặc tả toàn diện 11 bước chu trình sạc, đóng gói bit và 17 mã lỗi tại [ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md).
+
+Giao tiếp FDCAN2 giữa STM32H743 (đóng vai trò **CCU - Charge Control Unit**) và **SECC (Drop-Beats DB-SECC-601)** tuân thủ chuẩn ISO 15118-20 / DIN 70121 với khung truyền **29-bit Extended CAN (250 kbps)**:
 
 #### A. Khung tin CCU $\longrightarrow$ SECC (STM32H743 truyền đi):
 | CAN ID (Hex) | Tên bản tin | Chu kỳ / Điều kiện | Mục đích nội dung bản tin |
 | :--- | :--- | :--- | :--- |
-| `0x18C0F456` | `CCU_STATUS` | 20 ms / 50 ms | Trạng thái phiên CCU, cho phép đóng contactor, điện áp ($0.1\,\text{V}$) và dòng điện ($0.1\,\text{A}$) trạm đo được. |
-| `0x18C1F456` | `CCU_EVSE_INFO` | 100 ms | Thông tin trạm sạc EVSE ID, phiên bản giao thức ISO 15118 hỗ trợ. |
+| `0x18C0F456` | `CCU_STATUS` | 50 ms | Trạng thái phiên CCU, cho phép đóng contactor, điện áp ($0.1\,\text{V}$) và dòng điện ($0.1\,\text{A}$) trạm đo được. |
+| `0x18C1F456` | `CCU_EVSE_INFO` | 100 ms | Thông tin đo đạc dòng điện thực tế `EvsePresentCrnt` và điện áp `EvsePresentVolt`. |
 | `0x18C2F456` | `CCU_EVSE_CHG_MAX_LIMITS` | Sự kiện / 100 ms | Giới hạn công suất cực đại EVSE (Max Voltage 1000V, Max Current 250A, Max Power 180kW). |
 | `0x18C3F456` | `CCU_EVSE_CHG_MIN_LIMITS` | Sự kiện / 100 ms | Giới hạn tối thiểu trạm (Min Voltage 150V, Min Current 5A). |
 | `0x18C9F456` | `CCU_TIME_SYNC` | 1,000 ms | Đồng bộ thời gian thực Unix timestamp cho SECC. |
@@ -90,17 +92,30 @@ Giao tiếp FDCAN2 giữa STM32H743 (đóng vai trò **CCU - Charge Control Unit
 #### B. Khung tin SECC $\longrightarrow$ CCU (STM32H743 giám sát & nhận về):
 | CAN ID (Hex) | Tên bản tin | Chu kỳ watchdog | Dữ liệu giải mã cung cấp cho STM32H743 |
 | :--- | :--- | :--- | :--- |
-| `0x18B056F4` | `SECC_STATUS` | 20 ms / 50 ms | Trạng thái chu trình sạc SECC (`SeccChgSessionState`), trạng thái chân CP/PP, mã cảnh báo. |
+| `0x18B056F4` | `SECC_STATUS` | 50 ms | Trạng thái chu trình sạc SECC (`SeccChgSessionState`), trạng thái chân CP/PP, mã cảnh báo. |
 | `0x18B156F4` | `SECC_PLC_BASIC` | 100 ms | Trạng thái bắt tay sóng mang PLC HomePlug GreenPHY, mức suy hao tín hiệu mạng PLC. |
-| `0x18B356F4` | `SECC_EV_EVCC_ID` | 100 ms | **Mã MAC xe điện (EVCC ID 6 bytes)** — chìa khóa định danh xe phục vụ tính năng **AutoCharge**. |
+| `0x18B356F4` | `SECC_EV_EVCC_ID` | 1,000 ms | **Mã MAC xe điện (EVCC ID 6 bytes)** — chìa khóa định danh xe phục vụ tính năng **AutoCharge**. |
 | `0x18B456F4` | `SECC_EV_CHG_MAX_LIMITS` | 100 ms | Giới hạn sạc tối đa xe điện cho phép (Max Voltage, Max Current, Max Power của pin xe). |
 | `0x18B556F4` | `SECC_EV_CHG_MIN_LIMITS` | 100 ms | Giới hạn sạc tối thiểu pin xe yêu cầu. |
 | `0x18B656F4` | `SECC_EV_RESS_TARGETS` | **50 ms** | **Điện áp mục tiêu (Target V) & Dòng điện mục tiêu (Target I)** xe yêu cầu module nguồn phát. |
-| `0x18B756F4` | `SECC_EV_ENER_REQ_LIMITS`| 100 ms | Năng lượng pin xe cần nạp thêm (kWh). |
-| `0x18B856F4` | `SECC_EV_RESS_INFO` | **100 ms** | **Phần trăm pin xe hiện tại (% SoC)**, tổng dung lượng pin (kWh), nhiệt độ pin xe. |
-| `0x18B956F4` | `SECC_EV_REMAINING_TIME1` | 500 ms | Thời gian dự kiến sạc đến 80% (Bulk charging time). |
-| `0x18BA56F4` | `SECC_EV_REMAINING_TIME2` | 500 ms | Thời gian dự kiến sạc đầy 100% (Full charging time). |
-| `0x18BD56F4` | `SECC_EV_DCHG_LIMITS` | Theo chu trình | Giới hạn xả năng lượng V2G từ xe. |
+| `0x18B756F4` | `SECC_EV_ENER_REQ_LIMITS`| 250 ms | Năng lượng pin xe cần nạp thêm (kWh). |
+| `0x18B856F4` | `SECC_EV_RESS_INFO` | **250 ms** | **Phần trăm pin xe hiện tại (% SoC)**, tổng dung lượng pin (kWh), nhiệt độ pin xe. |
+| `0x18B956F4` | `SECC_EV_REMAINING_TIME1` | 250 ms | Thời gian dự kiến sạc đến 80% (Bulk charging time). |
+| `0x18BA56F4` | `SECC_EV_REMAINING_TIME2` | 250 ms | Thời gian dự kiến sạc đầy 100% (Full charging time). |
+| `0x18BD56F4` | `SECC_EV_DCHG_LIMITS` | 100 ms | Giới hạn xả năng lượng V2G từ xe. |
+
+#### C. Tóm tắt 11 Bước Sạc Chuẩn Hóa ISO 15118-20 EIM DC:
+1. **Idle (`0x01`)**: CP State A, Contactor Open, CCU Not Ready.
+2. **Plugin (`0x02`)**: CP State B, CCU Port Ready.
+3. **PLC Setup (`0x03` $\rightarrow$ `0x17`)**: Xung PWM 5%, hoàn tất bắt tay GreenPHY SLAC.
+4. **Protocol Selection (`0x20` $\rightarrow$ `0x25`)**: Lựa chọn giao thức ISO 15118-20 (ED2).
+5. **Session Setup (`0x50` $\rightarrow$ `0x56`)**: SECC gửi MAC ID xe 6-byte (`0x18B356F4`), chọn DC Charging.
+6. **Parameter Discovery (`0x60`)**: Trao đổi trần $P_{\max}, I_{\max}, V_{\max}$ và giới hạn tối thiểu.
+7. **Schedule Exchange (`0x57`)**: Trao đổi lịch trình công suất nạp và % SoC.
+8. **Cable Check (`0x61`)**: CP chuyển sang C/D, CCU kiểm tra an toàn cách điện IMD.
+9. **Precharge (`0x62`)**: Nâng áp AcePower khớp áp pin xe ($|\Delta V| \le 20\text{V}$), đóng Contactor DC.
+10. **Charge Loop (`0x58` $\rightarrow$ `0x63`)**: Vòng sạc kín chu kỳ 50ms điều khiển dòng theo BMS xe.
+11. **Stop & Welding Detection (`0x59` $\rightarrow$ `0x64` $\rightarrow$ `0x5D`)**: Hạ dòng $\le 5.0\text{A}$ mới mở Contactor, xả áp buồng hàn $< 20\text{V}$, kết thúc phiên.
 
 ---
 
