@@ -20,13 +20,23 @@ Tài liệu này định nghĩa chi tiết sơ đồ chân (Pinout) kết nối 
 
 ---
 
-## 2. GIAO TIẾP RS485 MODBUS RTU (STM32F429 <-> STM32H743)
+## 2. GIAO TIẾP RS485 MODBUS RTU: STM32F429 (MASTER) <-> STM32H743 (SLAVE)
 
 | Tín hiệu | STM32F429 (Master) | STM32H743 (Slave 0x01) | Thông số cấu hình | Ghi chú |
 | :--- | :--- | :--- | :--- | :--- |
-| **`RS485_TX`** | `PG14` (`USART6_TX`) | `PA9` (`USART1_TX`) | Baudrate: **115,200 bps**<br>Data: 8 bit, Parity: None, Stop: 1 | Cách ly quang Optocoupler tốc độ cao |
-| **`RS485_RX`** | `PG9` (`USART6_RX`) | `PA10` (`USART1_RX`) | Tần số lấy mẫu: 16x | Điện trở kết thúc bus $120\,\Omega$ 2 đầu |
+| **`RS485_TX`** | `PG14` (`USART6_TX`) | `PE8` (`UART7_TX`) | Baudrate: **115,200 bps**<br>Data: 8 bit, Parity: None, Stop: 1 | F429 gửi lệnh OCPP RemoteStart/Stop, Target V/I |
+| **`RS485_RX`** | `PG9` (`USART6_RX`) | `PE7` (`UART7_RX`) | Tần số lấy mẫu: 16x | H743 phản hồi telemetry V, I, kWh, SoC, Gun Status |
 | **`RS485_DIR`**| Auto-direction IC | Auto-direction IC | Phần cứng tự động điều hướng TX/RX | Dùng IC MAX13487E hoặc tương đương |
+
+---
+
+## 2.1. GIAO TIẾP RS485 MODBUS RTU: ANDROID HMI (MASTER) <-> STM32H743 (SLAVE)
+
+| Tín hiệu | Màn hình HMI (Master) | STM32H743 (Slave 0x01) | Thông số cấu hình | Ghi chú |
+| :--- | :--- | :--- | :--- | :--- |
+| **`RS485_TX / DATA+`** | RS485 Port (A / +) | `PC6` (`USART6_TX`) | Baudrate: **115,200 bps**<br>Data: 8 bit, Parity: None, Stop: 1 | HMI Master gửi lệnh Mailbox Start/Stop (Reg 0x0001) |
+| **`RS485_RX / DATA-`** | RS485 Port (B / -) | `PC7` (`USART6_RX`) | Polling chu kỳ 100..200 ms | H743 phản hồi 27 thanh ghi telemetry (0x0000..0x001A) |
+| **`GND`** | RS485 GND | GND Bo mạch | Nối đất tham chiếu vi sai | Cáp xoắn chống nhiễu bọc kim |
 
 ---
 
@@ -34,7 +44,7 @@ Tài liệu này định nghĩa chi tiết sơ đồ chân (Pinout) kết nối 
 
 | Tín hiệu | Chân STM32H743 | Bộ thu phát CAN Transceiver | Thông số cấu hình | Ghi chú |
 | :--- | :--- | :--- | :--- | :--- |
-| **`CAN1_TX`** | `PD1` (`FDCAN1_TX`) | Chân TX của TJA1051 / SN65HVD230 | **125 kbps**, Classical CAN frame | Điều khiển mạng module nguồn AcePower |
+| **`CAN1_TX`** | `PD1` (`FDCAN1_TX`) | Chân TX của TJA1051 / SN65HVD230 | **125 kbps**, Classical CAN frame | Điều khiển mạng module nguồn AcePower (AllSetData 0x029C0000) |
 | **`CAN1_RX`** | `PD0` (`FDCAN1_RX`) | Chân RX của TJA1051 / SN65HVD230 | 29-bit Extended CAN Identifier | Điện trở đầu cuối bus $120\,\Omega$ |
 
 ---
@@ -43,8 +53,8 @@ Tài liệu này định nghĩa chi tiết sơ đồ chân (Pinout) kết nối 
 
 | Tín hiệu | Chân STM32H743 | Bộ thu phát CAN Transceiver | Thông số cấu hình | Ghi chú |
 | :--- | :--- | :--- | :--- | :--- |
-| **`CAN2_TX`** | `PB6` (`FDCAN2_TX`) | Chân TX của TJA1051 / SN65HVD230 | **500 kbps**, Classical CAN frame | Giao tiếp PLC ISO 15118 / DIN 70121 |
-| **`CAN2_RX`** | `PB5` (`FDCAN2_RX`) | Chân RX của TJA1051 / SN65HVD230 | 29-bit Extended CAN Identifier | Nhận diện xe, đọc % SoC, giới hạn công suất |
+| **`CAN2_TX`** | `PB13` (`FDCAN2_TX`) | Chân TX của TJA1051 / SN65HVD230 | **250 kbps**, Classical CAN frame | Giao tiếp PLC ISO 15118 / DIN 70121 |
+| **`CAN2_RX`** | `PB12` (`FDCAN2_RX`) | Chân RX của TJA1051 / SN65HVD230 | 29-bit Extended CAN Identifier | Nhận diện xe (EVCC MAC), đọc % SoC, điện áp/dòng yêu cầu |
 
 ---
 

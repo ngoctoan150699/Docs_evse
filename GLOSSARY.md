@@ -77,7 +77,7 @@
 - **Định nghĩa:** Bus truyền thông công nghiệp chuyên dụng cho ô tô và tự động hóa, có khả năng chống nhiễu điện từ cực mạnh.
 - **Trong trạm sạc THACO EVSE:**
   - **FDCAN1 (125 kbps, 29-bit Extended ID)**: Dùng để điều khiển mạng các module nguồn công suất **AcePower AB-U2T** (Set Voltage/Current, Bật/Tắt nguồn, Polling nhịp tim).
-  - **FDCAN2 (500 kbps, 29-bit Extended ID)**: Dùng để truyền nhận dữ liệu với bộ điều khiển **SECC CCS2**.
+  - **FDCAN2 (250 kbps, 29-bit Extended ID)**: Dùng để truyền nhận dữ liệu với bộ điều khiển **SECC CCS2**.
 
 ### 2.3. SPI DMA (Serial Peripheral Interface Direct Memory Access)
 - **Định nghĩa:** Giao tiếp nối tiếp 4 dây tốc độ cao (`SCK`, `MOSI`, `MISO`, `CS`) kết hợp bộ chuyển dữ liệu trực tiếp vào bộ nhớ RAM không cần thông qua CPU.

@@ -35,7 +35,7 @@ flowchart TD
 
     subgraph POWER_ACTUATORS ["🔌 THIẾT BỊ CÔNG SUẤT & XE ĐIỆN"]
         ACE["Module Nguồn AcePower AB-U2T (1000V/250A)<br/>FDCAN1 @ 125 kbps (Master H7)"]
-        SECC["Bộ điều khiển SECC CCS2 (ISO 15118 / DIN 70121)<br/>FDCAN2 @ 500 kbps (Peer-to-Peer H7)"]
+        SECC["Bộ điều khiển SECC CCS2 (ISO 15118 / DIN 70121)<br/>FDCAN2 @ 250 kbps (Peer-to-Peer H7)"]
         METER["Công tơ DC Eastron DCM230 / DJS5179<br/>UART8 RS485 @ 9600 bps (Master H7)"]
         CAR["🚗 Khối Pin Ô tô Điện & EVCC"]
     end
