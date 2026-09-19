@@ -13,7 +13,7 @@ Hệ thống được thiết kế theo mô hình 5 tầng phân tán rõ ràng,
 +-------------------------------------------------------------------------------+
 |               TẦNG 1: GIAO DIỆN NGƯỜI DÙNG & TÀI XẾ (USER LAYER)              |
 |  - Ứng dụng di động THACO_Charge (iOS / Android Flutter)                      |
-|  - Thẻ sạc vật lý RFID / NFC (Chuẩn Mifare Classic / Desfire)                |
+|  - Thẻ sạc vật lý RFID / NFC (Chuẩn Mifare Classic / Desfire)                 |
 +-------------------------------------------------------------------------------+
                                     │
                                     ▼ (HTTPS REST / WSS / Radio Frequency)
@@ -27,7 +27,7 @@ Hệ thống được thiết kế theo mô hình 5 tầng phân tán rõ ràng,
                                     │
                                     ▼ (WebSocket OCPP 1.6J / MQTT Broker)
 +-------------------------------------------------------------------------------+
-|         TẦNG 3: TRẠM SẠC - GIAO TIẾP MẠNG & HMI (STATION FRONT TIER)         |
+|         TẦNG 3: TRẠM SẠC - GIAO TIẾP MẠNG & HMI (STATION FRONT TIER)          |
 |  - ESP32-C6 Modem: Wi-Fi/Ethernet, Web Dashboard (10.14.80.19), Web/MQTT OTA  |
 |  - Màn hình Android HMI (Flutter Kiosk): Hiển thị trạng thái, V, I, SoC, Tiền |
 +-------------------------------------------------------------------------------+
@@ -37,12 +37,12 @@ Hệ thống được thiết kế theo mô hình 5 tầng phân tán rõ ràng,
 +-------------------------------------------------------------------------------+
 |      TẦNG 4: BỘ ĐIỀU KHIỂN GIAO THỨC TRUNG TÂM (CENTRAL CONTROLLER TIER)      |
 |  - STM32F429ZIT6: MiniOCPP 1.6J Client thuần C, Modbus RTU Master             |
-|  - Quản lý phiên sạc đám mây, đồng bộ công tơ điện, Live Dual-Bank Flash       |
+|  - Quản lý phiên sạc đám mây, đồng bộ công tơ điện, Live Dual-Bank Flash      |
 +-------------------------------------------------------------------------------+
                                     │
                                     ▼ (RS485 Modbus RTU @ 115,200 bps)
 +-------------------------------------------------------------------------------+
-|     TẦNG 5: ĐIỀU KHIỂN CÔNG SUẤT CAO THẾ & AN TOÀN (POWER & SAFETY TIER)     |
+|     TẦNG 5: ĐIỀU KHIỂN CÔNG SUẤT CAO THẾ & AN TOÀN (POWER & SAFETY TIER)      |
 |  - STM32H743XIT6: CCU Host Controller, ChargerSession FSM CCS2 (8 bước)       |
 |  - Dual Modbus Slave (ID=1):                                                  |
 |      * USART6 (PC6/PC7): Tiếp nhận lệnh từ HMI Master (115,200 bps)           |

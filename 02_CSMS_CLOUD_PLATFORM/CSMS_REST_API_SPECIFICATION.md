@@ -24,7 +24,7 @@ Toàn bộ hệ thống API được viết bằng **Go (Chi Router v5)** với 
 |    - POST /api/payment/sepay/webhook                                          |
 +-------------------------------------------------------------------------------+
 | 3. Mobile Driver App APIs (/api/mobile/*) (Xác thực Firebase JWT)             |
-|    - Quản lý tài khoản, xe điện, Autocharge PnC, ví tiền, quét QR & sạc xe     |
+|    - Quản lý tài khoản, xe điện, Autocharge PnC, ví tiền, quét QR & sạc xe    |
 +-------------------------------------------------------------------------------+
 | 4. CSMS Admin Portal APIs (/api/csms/*) (Xác thực Staff JWT & 7 vai trò RBAC) |
 |    - Giám sát trụ, ra lệnh OCPP, quản lý thẻ RFID, bảng giá, người dùng       |
@@ -86,7 +86,7 @@ Mọi response từ API Server đều được đính kèm các Header bảo m�
 - **`PATCH /api/mobile/me/settings`**: Cập nhật bật/tắt nhận thông báo pin đầy, cảnh báo tiền ví.
 
 ### 3.2. Quản lý Xe điện & Tính năng Cắm là Sạc (Autocharge / Plug & Charge):
-*(Xem tài liệu đặc tả chuyên sâu tại: [AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md](file:///d:/DuAn/1.EVSE/csms_evse/docs/AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md))*
+*(Xem tài liệu đặc tả chuyên sâu tại: [AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md](AUTOCHARGE_CONFIGURATION_API_SPECIFICATION.md))*
 - **`GET /api/mobile/me/vehicles`**: Danh sách xe ô tô điện của tài xế (Biển số, Hãng xe, Model, Dung lượng pin kWh, Cổng sạc, `autoChargeEnabled`, `autoChargeEnrolledAt`, `evccId`).
 - **`POST /api/mobile/me/vehicles`**: Thêm mới xe điện vào tài khoản (hỗ trợ cờ `autoChargeEnabled: true` và chuỗi `evccId` để đăng ký đồng thời).
 - **`DELETE /api/mobile/me/vehicles/{id}`**: Xóa xe điện khỏi tài khoản.
@@ -110,7 +110,7 @@ Mọi response từ API Server đều được đính kèm các Header bảo m�
 - **`GET /api/mobile/tariffs/current`**: Bảng giá điện hiện tại theo khung giờ (Peak, Normal, Off-peak).
 
 ### 3.5. Điều khiển Phiên sạc Thời gian thực:
-- **`GET /api/mobile/charging-sessions`**: Danh sách lịch sử các phiên sạc của tài xế.
+- **`GET /api/mobile/charging-sessions`**: Danh sách lịch sử các phiên sạc của tài xế (mặc định lấy tối đa 100 phiên sạc gần nhất, hỗ trợ phân trang).
 - **`GET /api/mobile/charging-sessions/active`**: Lấy thông tin phiên sạc **đang diễn ra** (% SoC, kW, V, A, Thời gian, Chi phí tạm tính).
 - **`POST /api/mobile/charging-sessions`**: Khởi tạo yêu cầu sạc mới.
 - **`POST /api/mobile/charging-sessions/{id}/start`**: Kích hoạt phát lệnh sạc xuống trụ sạc (gửi `RemoteStartTransaction`).

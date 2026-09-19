@@ -15,11 +15,12 @@ Hệ sinh thái phần cứng trạm sạc THACO EVSE phân chia nhiệm vụ ch
 flowchart LR
     Cloud["☁️ CSMS Cloud<br/>(WebSocket OCPP 1.6J / MQTT)"] <--> ESP["1. ESP32-C6 (160MHz)<br/>Gateway Wi-Fi / Ethernet<br/>Web & MQTT Fleet OTA"]
     ESP <-->|SPI 4-wire Full-Duplex DMA 10 MHz| F4["2. STM32F429ZIT6 (180MHz)<br/>Bộ điều khiển Mạng & OCPP 1.6J<br/>Modbus RTU Master Engine"]
-    F4 <-->|RS485 Modbus RTU 115200| H7["3. STM32H743XIT6 (480MHz)<br/>Bộ điều khiển Công suất & An toàn<br/>ChargerSession FSM Authority"]
+    F4 <-->|RS485 Modbus RTU 115200 (UART7)| H7["3. STM32H743XIT6 (480MHz)<br/>Bộ điều khiển Công suất & An toàn<br/>ChargerSession FSM Authority"]
+    HMI["4. Android HMI Kiosk<br/>(Flutter UI 2 Súng Sạc)"] <-->|RS485 Modbus RTU 115200 (USART6)| H7
     
     H7 <-->|FDCAN1 125k| ACE["Module Nguồn AcePower AB-U2T<br/>(1000V / 250A)"]
-    H7 <-->|FDCAN2 500k| SECC["Bộ điều khiển SECC CCS2<br/>(PLC ISO 15118 / DIN 70121)"]
-    H7 <-->|UART8 9600| DCM["Công tơ DC Eastron DCM230"]
+    H7 <-->|FDCAN2 250k| SECC["Bộ điều khiển SECC CCS2<br/>(PLC ISO 15118 / DIN 70121)"]
+    H7 <-->|UART4 9600| DCM["Công tơ DC Eastron DCM230"]
 ```
 
 ---
