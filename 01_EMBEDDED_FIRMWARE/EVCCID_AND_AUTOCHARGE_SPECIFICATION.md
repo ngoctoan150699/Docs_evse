@@ -21,9 +21,10 @@
    - 3.2. Phương thức 2: Nhập thủ công hoặc Nhân viên hỗ trợ (Admin Binding)
    - 3.3. Cơ chế kiểm soát an toàn & cô lập dữ liệu phía CSMS Go Backend
 4. [Chu Trình Sạc Tự Động Thực Tế Sau Khi Đã Liên Kết (End-to-End Autocharge)](#4-chu-trình-sạc-tự-động-thực-tế-sau-khi-đã-liên-kết-end-to-end-autocharge)
-   - 4.1. Sơ đồ tuần tự toàn trình (End-to-End Sequence Diagram)
-   - 4.2. Thẩm định an toàn 4 lớp tại CSMS Gateway (Safety & Financial Pre-auth)
-   - 4.3. Đóng điện, giám sát chu kỳ sạc và kết thúc quyết toán tự động
+   - 4.1. Ma trận thứ tự ưu tiên xác thực EIM (AutoCharge > QR App > Thẻ RFID)
+   - 4.2. Sơ đồ tuần tự toàn trình (End-to-End Sequence Diagram)
+   - 4.3. Thẩm định an toàn 4 lớp tại CSMS Gateway (Safety & Financial Pre-auth)
+   - 4.4. Đóng điện, giám sát chu kỳ sạc và kết thúc quyết toán tự động
 5. [Cơ Chế An Toàn, Chống Gian Lận & Xử Lý Sự Cố](#5-cơ-chế-an-toàn-chống-gian-lận--xử-lý-sự-cố)
 
 ---
@@ -243,9 +244,49 @@ sequenceDiagram
 
 ## 4. CHU TRÌNH SẠC TỰ ĐỘNG THỰC TẾ SAU KHI ĐÃ LIÊN KẾT (END-TO-END AUTOCHARGE)
 
-Khi xe đã được liên kết AutoCharge thành công, từ những lần tiếp theo tài xế chỉ cần cắm súng là xe tự sạc.
+### 4.1. Ma Trận Thứ Tự Ưu Tiên Xác Thực EIM (EIM Priority Hierarchy)
 
-### 4.1. Sơ đồ tuần tự toàn trình (End-to-End Sequence Diagram)
+Trong kiến trúc phần mềm trạm sạc (`Core/app/ocpp_evse_bridge.c`), hệ thống thiết lập thứ tự ưu tiên nghiêm ngặt giữa 3 phương thức xác thực ngoại vi EIM (External Identification Means):
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ƯU TIÊN 1 (Cao nhất) │ AUTOCHARGE (Định danh tự động qua MAC/EVCCID xe)    │
+├───────────────────────┼─────────────────────────────────────────────────────┤
+│  ƯU TIÊN 2            │ QUÉT MÃ QR QUA MOBILE APP (RemoteStartTransaction) │
+├───────────────────────┼─────────────────────────────────────────────────────┤
+│  ƯU TIÊN 3 (Dự phòng) │ QUẸT THẺ RFID VẬT LÝ TẠI TRỤ (Local Authorize)      │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### Nguyên lý vận hành & Luồng Fallback tự động:
+1. **Ưu tiên 1 - AutoCharge (`AUTOC_<MAC>`):**
+   - Khi cắm súng sạc, modem SECC và EVCC bắt tay PLC đọc địa chỉ MAC của xe trong 2–5 giây đầu.
+   - Nếu đọc được MAC hợp lệ (`h7->evcc_id_len == 6`), trạm **luôn ưu tiên số 1** sinh mã `AUTOC_<MAC>` để yêu cầu cấp quyền sạc. Chiếc xe là định danh trung tâm (True Plug & Charge), không cần thao tác điện thoại.
+2. **Cơ chế Fallback (Tự động chuyển tiếp khi xe chưa bật AutoCharge):**
+   - Nếu xe chưa đăng ký AutoCharge, cờ AutoCharge bị tắt, hoặc ví tiền tài khoản không đủ: CSMS Gateway sẽ trả về từ chối (`Blocked / Invalid`).
+   - Lúc này, trạm sạc không báo lỗi ngắt súng mà tự động giữ trạng thái chờ (`Preparing`), sẵn sàng nhận tiếp:
+     - **Ưu tiên 2:** Lệnh quét mã QR kích hoạt từ xa từ ứng dụng THACO Charge (`s_remote_id_tag`).
+     - **Ưu tiên 3:** Quẹt thẻ RFID vật lý tại đầu đọc trên thân trụ sạc (`DEFAULT_AUTH_ID_TAG`).
+3. **Mã nguồn thực thi trong Firmware STM32F429 (`Core/app/ocpp_evse_bridge.c`):**
+   ```c
+   char autoc_tag[32] = {0};
+   const char *tag = NULL;
+   if (h7->evcc_id_len == 6U && h7->evcc_id_hex[0] != '\0') {
+       /* Ưu tiên 1: AutoCharge tự động qua phần cứng MAC / EVCCID của xe */
+       snprintf(autoc_tag, sizeof(autoc_tag), "AUTOC_%s", h7->evcc_id_hex);
+       tag = autoc_tag;
+   } else if (s_remote_id_tag[0] != '\0') {
+       /* Ưu tiên 2: Quét mã QR / RemoteStart từ ứng dụng di động CSMS */
+       tag = s_remote_id_tag;
+   } else {
+       /* Ưu tiên 3: Dự phòng / Thẻ mặc định / RFID */
+       tag = "VN-THACO-TEST001";
+   }
+   ```
+
+---
+
+### 4.2. Sơ đồ tuần tự toàn trình (End-to-End Sequence Diagram)
 
 ```mermaid
 sequenceDiagram
@@ -298,7 +339,7 @@ sequenceDiagram
     end
 ```
 
-### 4.2. Thẩm định an toàn 4 lớp tại CSMS Gateway (Safety & Financial Pre-auth)
+### 4.3. Thẩm định an toàn 4 lớp tại CSMS Gateway (Safety & Financial Pre-auth)
 
 Khi nhận bản tin `Authorize(idTag="AUTOC_382C4AA1B2C3")`, gateway Go (`cmd/ocpp-gateway/main.go`) kiểm tra tuần tự 4 điều kiện:
 
@@ -322,7 +363,7 @@ Khi nhận bản tin `Authorize(idTag="AUTOC_382C4AA1B2C3")`, gateway Go (`cmd/o
              └─ Không thỏa bất kỳ điều kiện nào? ─────────► BLOCKED
 ```
 
-### 4.3. Đóng điện, giám sát chu kỳ sạc và kết thúc quyết toán tự động
+### 4.4. Đóng điện, giám sát chu kỳ sạc và kết thúc quyết toán tự động
 1. **Khởi động nguồn:** F429 gửi `StartTransaction`. CSMS mở phiên sạc, gán hình thức xác thực `auth_method = 'AUTO_CHARGE'`. H743 thực hiện kiểm tra cách điện (Insulation Test), nâng điện áp đầu ra bộ nguồn AcePower bằng đúng điện áp pin xe (Pre-charge), sau đó mới đóng contactor DC chính để triệt tiêu tia lửa điện.
 2. **Theo dõi thời gian thực:** H743 liên tục đọc dòng, áp, nhiệt độ và chỉ số công tơ chuyển sang F429 gửi `MeterValues` lên Cloud. Hệ thống đồng thời giám sát số dư ví để cảnh báo nếu tài khoản sắp cạn tiền.
 3. **Quyết toán tự động:** Khi ngắt sạc, F429 gửi `StopTransaction`. Hệ thống CSMS tự động hạch toán năng lượng tiêu thụ (kWh), tính toán giá tiền dựa trên bảng giá bậc thang theo khung giờ cao/thấp điểm, thực hiện trừ tiền trong ví điện tử của tài xế và gửi hóa đơn VAT điện tử qua Email/App.
