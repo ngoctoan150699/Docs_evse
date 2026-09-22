@@ -85,6 +85,7 @@ flowchart TD
 ## 3. HƯỚNG DẪN ĐỌC TÀI LIỆU THEO VAI TRÒ (READING GUIDE BY ROLE)
 
 ### 3.1. Dành cho Ban Giám đốc / Lãnh đạo (Executive & Management):
+- Đọc [01_EMBEDDED_FIRMWARE/EVCCID_AND_AUTOCHARGE_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/EVCCID_AND_AUTOCHARGE_SPECIFICATION.md): **Tóm lược dành cho Ban Lãnh đạo về tính năng AutoCharge (Cắm là Sạc)**: Giải thích lý do bắt buộc dùng OCPP DataTransfer, so sánh trải nghiệm người dùng và lợi ích cạnh tranh thương mại.
 - Đọc [GLOSSARY.md](GLOSSARY.md): Nắm bắt nhanh định nghĩa toàn bộ thuật ngữ chuyên ngành (OCPP, SECC, CCS2, SePay, v.v.).
 - Đọc [ARCHITECTURE_OVERVIEW.md](ARCHITECTURE_OVERVIEW.md): Hiểu mô hình 5 tầng bảo mật và phân chia trách nhiệm hệ thống.
 - Đọc [05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md](05_OPERATIONS_AND_MAINTENANCE/PRODUCTION_READINESS_AUDIT.md): Đánh giá mức độ sẵn sàng thương mại hóa và lộ trình mở rộng quy mô.
@@ -92,6 +93,7 @@ flowchart TD
 
 ### 3.2. Dành cho Kỹ sư Lập trình Nhúng & Phần cứng (Embedded Engineers):
 - Đọc [01_EMBEDDED_FIRMWARE/README.md](01_EMBEDDED_FIRMWARE/README.md): Kiến trúc phân tán 3 chip ESP32-C6, STM32F429, STM32H743.
+- Đọc [01_EMBEDDED_FIRMWARE/EVCCID_AND_AUTOCHARGE_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/EVCCID_AND_AUTOCHARGE_SPECIFICATION.md): **Đặc tả kỹ thuật toàn diện cơ chế trích xuất EVCCID từ xe qua PLC/CAN/Modbus/OCPP DataTransfer**, quy trình liên kết tài khoản Zero-Touch trên Mobile App, và chu trình sạc tự động AutoCharge.
 - Đọc [01_EMBEDDED_FIRMWARE/ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md](01_EMBEDDED_FIRMWARE/ISO15118_20_SECC_CHARGING_FLOW_SPECIFICATION.md): **Đặc tả toàn diện quy trình sạc DC ISO 15118-20 (EIM) & Ma trận truyền thông CCU ↔ SECC (DB-SECC-601)**: Biểu đồ tuần tự 11 bước bắt tay sạc, đối soát 3 lớp (Spec Drop-Beats vs Code C vs Firmware STM32H743), ma trận đóng gói bit 14 frame CAN 250 kbps, 3 quy tắc an toàn bất biến ($I_{\text{OUT}} \le 5.0\text{A}$ ngắt contactor, Precharge $|\Delta V| \le 20\text{V}$, xả áp buồng hàn $< 20\text{V}$) và bảng tra cứu 17 mã lỗi Trouble Codes.
 - Đọc [01_EMBEDDED_FIRMWARE/SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md](01_EMBEDDED_FIRMWARE/SECC_CAN_FRAME_GAP_ANALYSIS_AND_AUDIT.md): **Báo cáo đối soát chi tiết từng bit/byte giữa file Excel đặc tả Drop-Beats Matrix v1.1.0 và thư viện C firmware STM32H743** (Chỉ ra toàn bộ điểm khớp, thiếu trường dữ liệu phụ và điểm lệch comment mô tả).
 - Đọc [01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md](01_EMBEDDED_FIRMWARE/INTER_MCU_COMMUNICATION_AND_REGISTERS.md): **Cẩm nang tương tác giữa 3 vi điều khiển và màn hình HMI**: Giao thức SPI 4 dây DMA 10MHz (Magic 0xAE53), Modbus RTU RS485 (115200 bps), bảng thanh ghi chi tiết H743, cơ chế Boot bất đồng bộ (ESP32 boot chậm hơn F4 & H7), ma trận tự phục hồi khi có 1 MCU bị reset, quy trình khôi phục mạng Ethernet tự động và cơ chế vận hành sạc ngoại tuyến (Offline Resilience) khi mất mạng.

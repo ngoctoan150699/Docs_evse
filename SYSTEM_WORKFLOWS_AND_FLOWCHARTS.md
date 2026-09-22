@@ -100,7 +100,63 @@ sequenceDiagram
 
 ---
 
-## 3. QUY TRÌNG 3: NẠP TIỀN TỰ ĐỘNG QUA CỔNG THANH TOÁN SEPAY VIETQR
+## 3. QUY TRÌNG 3: SẠC XE TỰ ĐỘNG BẰNG TÍNH NĂNG AUTOCHARGE (CẮM LÀ SẠC QUA EVCCID / MAC)
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Driver as Tài xế (Đã bật AutoCharge)
+    participant Car as Ô tô điện (EVCC)
+    participant H7 as STM32H743 (Power)
+    participant F4 as STM32F429 (OCPP)
+    participant CSMS as CSMS Go Gateway
+    participant Module as Module Nguồn AcePower
+
+    Driver->>Car: Cắm súng sạc CCS2 vào xe
+    Car->>H7: Bắt tay PLC DIN 70121 (Control Pilot 12V -> 9V)
+    H7->>H7: Khóa chốt súng cơ khí
+    H7->>F4: Báo Preparing qua Modbus RTU
+    F4->>CSMS: StatusNotification (Preparing)
+
+    Car->>H7: Modem EVCC gửi CAN frame EvEvccId (MAC 6-byte)
+    H7->>F4: Ghi Modbus Registers 0x26 - 0x29 (EVCC ID)
+    Note over F4: F4 tự sinh idTag = "AUTOC_" + MAC (Ví dụ: AUTOC_382C4AA1B2C3)
+    F4->>CSMS: Gửi bản tin Authorize (idTag = "AUTOC_382C4AA1B2C3")
+
+    Note over CSMS: Kiểm tra Whitelist xe (Tenant Isolation) & Kiểm tra số dư ví (>= 10.000đ / Free Quota)
+    CSMS-->>F4: Phản hồi Authorize.conf (status = Accepted)
+
+    F4->>CSMS: Gửi bản tin StartTransaction (connectorId = 1, idTag = "AUTOC_...")
+    CSMS-->>F4: StartTransaction.conf (TransactionID = 2005)
+
+    F4->>H7: Ghi Modbus: Bật sạc công suất DC
+    H7->>H7: Đo kiểm tra cách điện (Insulation Test)
+    H7->>Module: FDCAN1: Set Voltage & Current (Pre-charge khớp điện áp pin)
+    H7->>H7: Đóng Contactor DC chính
+    H7->>Module: FDCAN1: Power ON (Bơm điện DC)
+
+    loop Chu kỳ sạc liên tục & Cập nhật thời gian thực
+        Car->>H7: Yêu cầu V/I và gửi % SoC (FDCAN2 SECC)
+        H7->>Module: Điều khiển bám sát điện áp/dòng điện sạc
+        H7->>F4: Cập nhật chỉ số công tơ kWh qua Modbus
+        F4->>CSMS: Định kỳ gửi MeterValues (V, I, kWh, SoC %)
+        CSMS-->>Driver: Đẩy thông báo实时 lên Mobile App: Đang sạc AutoCharge
+    end
+
+    alt Xe sạc đầy 100% hoặc Tài xế bấm mở khóa xe
+        Car->>H7: Yêu cầu dừng sạc (hoặc ngắt kết nối)
+        H7->>Module: FDCAN1: Power OFF (Giảm dòng về 0A)
+        H7->>H7: Mở Contactor DC chính -> Mở chốt khóa súng
+        F4->>CSMS: Gửi bản tin StopTransaction (MeterStop, Reason = EVDisconnected)
+        CSMS-->>F4: StopTransaction.conf
+        CSMS->>CSMS: Tự động trừ tiền ví điện tử / trừ lượt Free Quota
+        CSMS-->>Driver: Bắn Push Notification: Thông báo hoàn tất sạc & Hóa đơn điện tử
+    end
+```
+
+---
+
+## 4. QUY TRÌNG 4: NẠP TIỀN TỰ ĐỘNG QUA CỔNG THANH TOÁN SEPAY VIETQR
 
 ```mermaid
 sequenceDiagram
@@ -138,7 +194,7 @@ sequenceDiagram
 
 ---
 
-## 4. QUY TRÌNH 4: NGẮT AN TOÀN KHẨN CẤP (FAIL-SAFE & EMERGENCY STOP)
+## 5. QUY TRÌNH 5: NGẮT AN TOÀN KHẨN CẤP (FAIL-SAFE & EMERGENCY STOP)
 
 ```mermaid
 flowchart TD
@@ -168,7 +224,7 @@ flowchart TD
 
 ---
 
-## 5. QUY TRÌNH 5: NÂNG CẤP FIRMWARE TỪ XA LIVE DUAL-BANK OTA
+## 6. QUY TRÌNH 6: NÂNG CẤP FIRMWARE TỪ XA LIVE DUAL-BANK OTA
 
 ```mermaid
 sequenceDiagram

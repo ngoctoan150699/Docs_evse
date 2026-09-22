@@ -78,3 +78,4 @@ Hệ thống trạm sạc vận hành trơn tru nhờ sự phối hợp nhịp n
 5. [MODBUS_REGISTER_MAP.md](MODBUS_REGISTER_MAP.md): Bảng ánh xạ thanh ghi Modbus RTU chuẩn giữa HMI, F429 và H743.
 6. [OTA_UPDATE_SPECIFICATION.md](OTA_UPDATE_SPECIFICATION.md): Đặc tả nạp firmware OTA qua Web & MQTT, cơ chế phân đoạn sub-chunking 512B và Live Dual-Bank Flash Swap.
 7. [BUILD_AND_FLASH_GUIDE.md](BUILD_AND_FLASH_GUIDE.md): Cẩm nang biên dịch (PlatformIO, CubeIDE headless) và nạp flash ST-Link CLI cho cả 3 chip.
+8. [EVCCID_AND_AUTOCHARGE_SPECIFICATION.md](EVCCID_AND_AUTOCHARGE_SPECIFICATION.md): **Đặc tả kỹ thuật toàn diện cơ chế trích xuất EVCCID từ xe qua PLC/CAN/Modbus/OCPP DataTransfer, quy trình liên kết tài khoản Zero-Touch trên Mobile App, và chu trình sạc tự động AutoCharge (Cắm là Sạc) chuẩn công nghiệp**.
