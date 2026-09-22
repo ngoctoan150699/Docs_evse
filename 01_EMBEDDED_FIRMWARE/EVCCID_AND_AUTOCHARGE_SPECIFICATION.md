@@ -341,27 +341,38 @@ sequenceDiagram
 
 ### 4.3. Thẩm định an toàn 4 lớp tại CSMS Gateway (Safety & Financial Pre-auth)
 
-Khi nhận bản tin `Authorize(idTag="AUTOC_382C4AA1B2C3")`, gateway Go (`cmd/ocpp-gateway/main.go`) kiểm tra tuần tự 4 điều kiện:
+Cơ chế thẩm định an toàn 4 lớp được áp dụng đồng bộ và nghiêm ngặt tại **cả 2 đầu vào OCPP**: `Authorize` (`cmd/ocpp-gateway/main.go`) và `StartTransaction` (`cmd/ocpp-gateway/transaction_handlers.go`). Bất kể trạm sạc gửi yêu cầu xác thực trước hay gửi lệnh khởi tạo phiên trực tiếp:
 
 ```
-                          [ Nhận Authorize(idTag="AUTOC_...") ]
-                                           │
-                                           ▼
-             [ LỚP 1: Kill-switch hệ thống có đang BẬT không? ] ───(Không)───► BLOCKED
-                                           │ (Có)
-                                           ▼
-             [ LỚP 2: Khớp xe trong DB (app_vehicles & charge_points)? ] ─(Không)─► INVALID
-                                           │ (Khớp)
-                                           ▼
-             [ LỚP 3: Tài khoản chủ xe có đang ACTIVE không? ] ────(Không)───► BLOCKED
-                                           │ (Active)
-                                           ▼
-             [ LỚP 4: Điều kiện tài chính có thỏa mãn không? ]
-             ├─ Có thẻ sạc miễn phí VIP/Free? ────────────► ACCEPTED
-             ├─ Còn hạn mức lượt sạc miễn phí tháng? ──────► ACCEPTED
-             ├─ Số dư ví khả dụng >= 10,000 VNĐ? ─────────► ACCEPTED
-             └─ Không thỏa bất kỳ điều kiện nào? ─────────► BLOCKED
+                          [ Nhận Authorize / StartTransaction(idTag="AUTOC_...") ]
+                                                     │
+                                                     ▼
+              [ LỚP 1: Kill-switch hệ thống có đang BẬT không? ] ───(Không)───► BLOCKED
+                                                     │ (Có)
+                                                     ▼
+              [ LỚP 2: Khớp xe trong DB (app_vehicles & charge_points)? ] ─(Không)─► INVALID (Từ chối tuyệt đối)
+                                                     │ (Khớp)
+                                                     ▼
+              [ LỚP 3: Tài khoản chủ xe có đang ACTIVE không? ] ────(Không)───► BLOCKED
+                                                     │ (Active)
+                                                     ▼
+              [ LỚP 4: Điều kiện tài chính có thỏa mãn không? ]
+              ├─ Có thẻ sạc miễn phí VIP/Free? ────────────► ACCEPTED
+              ├─ Còn hạn mức lượt sạc miễn phí tháng? ──────► ACCEPTED
+              ├─ Số dư ví khả dụng >= 10,000 VNĐ? ─────────► ACCEPTED
+              └─ Không thỏa bất kỳ điều kiện nào? ─────────► BLOCKED
 ```
+
+> [!CAUTION]
+> **Chống gian lận & Xe giả lập (Security & Spoofing Protection):**
+> 1. **Chặn tuyệt đối mã xe chưa đăng ký:** Nếu mã MAC gửi lên không tồn tại trong bảng `app_vehicles` hoặc chưa kích hoạt AutoCharge (`auto_charge_enabled = false`), CSMS Gateway trả về `transactionId = 0` và `idTagInfo: { status: "Invalid" }`. Hệ thống tuyệt đối không sinh phiên sạc vãng lai (`app_user_id = NULL`).
+> 2. **Chốt từ chối phần cứng (Hardware Rejection Latch `s_tx_rejected` trên F429):**
+>    - Khi nhận phản hồi `Invalid` hoặc `Blocked`, firmware STM32F429 lập tức khóa cờ `s_tx_rejected = true` và phát lệnh `EVSE_MB_CMD_STOP_CHARGE_REQUEST` xuống STM32H743 để dừng cưỡng bức.
+>    - Cờ `s_tx_rejected` ngăn chặn tình trạng F429 phát lệnh `BeginTransaction` lặp lại liên tục trong chu kỳ quét 10ms.
+>    - Cờ này chỉ được tự động giải phóng khi: tài xế rút súng sạc (`unplugged`), trụ quay về trạng thái `Available`, hoặc người dùng chủ động mở App quét mã QR (`RemoteStartTransaction`).
+> 3. **Khóa ủy quyền độc quyền trên H743 (`CONFIG_EVSE_REQUIRE_APP_AUTH == 1`):**
+>    - Bo mạch điều khiển nguồn STM32H743 không tự ý cấp điện chỉ vì modem SECC nhảy vào trạng thái vòng lặp sạc `0x63` (DCChargeLoop).
+>    - H743 bắt buộc phải nhận được Permit hợp lệ từ F429/CSMS (`CommandArbiter_ValidateAndConsumePermit`) mới được phép chuyển sang `PREPARING` và đóng rơ-le cao áp.
 
 ### 4.4. Đóng điện, giám sát chu kỳ sạc và kết thúc quyết toán tự động
 1. **Khởi động nguồn:** F429 gửi `StartTransaction`. CSMS mở phiên sạc, gán hình thức xác thực `auth_method = 'AUTO_CHARGE'`. H743 thực hiện kiểm tra cách điện (Insulation Test), nâng điện áp đầu ra bộ nguồn AcePower bằng đúng điện áp pin xe (Pre-charge), sau đó mới đóng contactor DC chính để triệt tiêu tia lửa điện.
