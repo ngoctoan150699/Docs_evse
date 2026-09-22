@@ -27,11 +27,11 @@ flowchart LR
 
 ## 2. BẢNG DANH MỤC DỰ ÁN & GIT REPOSITORIES CỦA 3 VI ĐIỀU KHIỂN
 
-| Vi điều khiển | Thư mục Project cục bộ | Git Repository URL | Phần cứng sử dụng | Vai trò chức năng chính |
-| :--- | :--- | :--- | :--- | :--- |
-| **Tier 1: ESP32-C6** | `d:\DuAn\10.ViDieuKhien\esp32_ocpp_v2` | [`ngoctoan150699/esp32_ocpp`](https://github.com/ngoctoan150699/esp32_ocpp.git) | ESP32-C6-WROOM-1 (16MB Flash, RISC-V 160MHz) | Quản lý kết nối Wi-Fi/Ethernet, mở Web Dashboard nội bộ (`10.14.80.19`), điều phối nạp Web OTA & MQTT Fleet OTA cho cả 3 vi điều khiển. |
-| **Tier 2: STM32F429** | `d:\DuAn\10.ViDieuKhien\STM32\CodeSTM32\F429_OCPP1.6J` | [`ngoctoan150699/F429_OCPP1.6J`](https://github.com/ngoctoan150699/F429_OCPP1.6J.git) | STM32F429ZIT6 (ARM Cortex-M4 180MHz, 2MB Flash, 256KB RAM) | Chạy thư viện MiniOCPP 1.6J Client thuần C không malloc, đóng vai trò Modbus Master gửi lệnh xuống H743, hỗ trợ Live Dual-Bank Flash OTA. |
-| **Tier 3: STM32H743** | `d:\DuAn\10.ViDieuKhien\STM32\CodeSTM32\evse_h743` | [`ngoctoan150699/EVSE_H743`](https://github.com/ngoctoan150699/EVSE_H743.git) | STM32H743XIT6 (ARM Cortex-M7 480MHz, 2MB Flash, 1MB RAM) | Nhà chức trách an toàn tối cao (Safety Authority), FSM sạc CCS2 8 bước, điều khiển nguồn AcePower (FDCAN1), SECC (FDCAN2), công tơ DCM230, ngắt khẩn E-Stop < 20ms, Live Dual-Bank OTA. |
+| Vi điều khiển | Phần cứng sử dụng | Vai trò chức năng cốt lõi | Thư mục cục bộ | Git Repository |
+| :--- | :--- | :--- | :--- | :---: |
+| **Tier 1: ESP32-C6** | ESP32-C6-WROOM-1<br/>*(RISC-V 160MHz)* | Quản lý Wi-Fi/Ethernet, Web Dashboard `10.14.80.19`, điều phối Web OTA & MQTT Fleet OTA | `d:\DuAn\10.ViDieuKhien\`<br/>`esp32_ocpp_v2` | [GitHub ↗](https://github.com/ngoctoan150699/esp32_ocpp.git) |
+| **Tier 2: STM32F429** | STM32F429ZIT6<br/>*(Cortex-M4 180MHz)* | Chạy MiniOCPP 1.6J Client thuần C, Modbus Master sang H743, SPI Slave DMA sang ESP32 | `d:\DuAn\10.ViDieuKhien\`<br/>`STM32\CodeSTM32\F429_OCPP1.6J` | [GitHub ↗](https://github.com/ngoctoan150699/F429_OCPP1.6J.git) |
+| **Tier 3: STM32H743** | STM32H743XIT6<br/>*(Cortex-M7 480MHz)* | Điều khiển nguồn AcePower (FDCAN1), SECC (FDCAN2), công tơ DCM230 & ngắt khẩn < 20ms | `d:\DuAn\10.ViDieuKhien\`<br/>`STM32\CodeSTM32\evse_h743` | [GitHub ↗](https://github.com/ngoctoan150699/EVSE_H743.git) |
 
 ---
 
