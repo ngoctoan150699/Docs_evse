@@ -55,3 +55,37 @@ Truy cập menu **Quản lý đơn hàng $ightarrow$ Đơn nạp tiền (Rechar
 - Danh sách toàn bộ các giao dịch tài xế chuyển khoản ngân hàng qua mã VietQR.
 - Cột thông tin: Mã đơn hàng (`TC100284`), Số tài khoản chuyển, Số tiền, Thời gian giao dịch, Mã tham chiếu ngân hàng SePay.
 - **Đối soát tự động:** Hệ thống tự động so khớp số tiền thực tế ngân hàng báo về với đơn nạp trên hệ thống. Kế toán chỉ cần bấm nút [Xuất báo cáo Excel] để tải toàn bộ bảng kê đối soát phục vụ xuất hóa đơn thuế VAT.
+
+---
+
+## 5. TRA CỨU LỊCH SỬ PHIÊN SẠC, PHIÊN SẠC MIỄN PHÍ & XUẤT HÓA ĐƠN ĐIỆN TỬ (INVOICE)
+
+Truy cập menu **Khách hàng (Customers)** $\rightarrow$ Bấm nút **[Chi tiết / Lịch sử]** của khách hàng:
+
+### 5.1. Hai chế độ xem linh hoạt (Dual Tabs)
+1. **Tab ⚡ Lịch sử sạc & Hóa đơn điện tử (Charging Sessions & Invoices):**
+   - Hiển thị đầy đủ **100% các phiên sạc** (không bị ngắt quãng mã giao dịch Tx), bao gồm cả các phiên sạc trả phí khấu trừ ví và các phiên sạc **Miễn phí VIP / Hạn mức xe (0 VNĐ)**.
+   - Thống kê tổng hợp: Tổng lượt sạc, Tổng điện tiêu thụ (kWh), Tổng tiền thanh toán, và Số lượng phiên sạc miễn phí.
+   - Chi tiết từng phiên: Mã GD (`#574`, `#573`, `#572`, ...), Trụ & Cổng sạc, Phương thức xác thực (`AutoCharge`, `App QR`, `RFID`), Thời gian bắt đầu - kết thúc, Thời lượng sạc, Chỉ số công tơ, Điện năng tiêu thụ, và Trạng thái thanh toán (`0 VNĐ (Miễn phí)` hoặc khấu trừ tiền ví).
+   - Nút **[📄 Hóa đơn]** trên từng dòng để mở hóa đơn điện tử chính thức.
+
+2. **Tab 💳 Biến động số dư ví (Wallet Ledger):**
+   - Bảng kê chi tiết dòng tiền biến động trong tài khoản ví của khách hàng:
+     - Dòng tiền vào (IN): Các giao dịch nạp tiền qua cổng VietQR SePay.
+     - Dòng tiền ra (OUT): Các khoản thanh toán tiền sạc xe.
+     - Các phiên sạc miễn phí VIP (0 VNĐ) hiển thị nhãn `Miễn phí` đồng bộ với sổ cái.
+
+### 5.2. Hóa đơn điện tử dịch vụ sạc xe điện (Electronic Invoice)
+- **Truy cập nhanh:** Có thể mở hóa đơn điện tử từ 3 vị trí:
+  1. Từ Tab Lịch sử sạc trong hồ sơ khách hàng.
+  2. Từ nút **[Hóa đơn]** trong bảng **Phiên sạc giao dịch (Transactions)**.
+  3. Từ nút **[📄 Hóa đơn]** trên thanh tiêu đề của cửa sổ Viễn trắc trực tiếp (Session Detail).
+- **Nội dung hóa đơn điện tử:**
+  - Tiêu đề chính thức: **HÓA ĐƠN ĐIỆN TỬ DỊCH VỤ SẠC XE ĐIỆN (ELECTRONIC EV CHARGING INVOICE)**.
+  - Số hóa đơn: `HD-<Mã giao dịch>`, Ngày lập, Mã tra cứu tham chiếu hệ thống (Ref UUID).
+  - Thông tin Đơn vị cung cấp dịch vụ (Seller): THACO AUTO, MST: `4000381810`, Hotline CSKH `1900 545 591`.
+  - Thông tin Khách hàng sạc xe (Buyer): Họ tên, Email, Số điện thoại, Thông tin xe sạc (Model, Biển số), Mã định danh xác thực (`idTag` / `EVCC ID`).
+  - Bảng kê chi tiết phiên sạc: Trạm sạc, Trụ & Cổng sạc, Thời gian, Thời lượng, Chỉ số điện đầu - cuối (kWh), Điện năng nạp, Biểu giá áp dụng.
+  - Bảng hạch toán tài chính: Tiền điện trước thuế (chưa VAT), Thuế suất GTGT (VAT 8%), Tổng cộng tiền thanh toán. Đối với phiên sạc VIP/Quota, hiển thị rõ `0 VNĐ (MIỄN PHÍ)`.
+  - Con dấu ký số điện tử: Con dấu `✓ ĐÃ THANH TOÁN QUA VÍ THACO CHARGE` hoặc `✓ MIỄN PHÍ VIP (0 VNĐ)`.
+  - **In hóa đơn / Xuất PDF:** Tích hợp nút **[🖨️ In Hóa Đơn / Lưu PDF]** với chế độ in ấn riêng biệt (`@media print`), tự động ẩn toàn bộ giao diện quản trị xung quanh để in ra bản hóa đơn chuẩn đẹp trên khổ giấy A4 hoặc phiếu thanh toán.
